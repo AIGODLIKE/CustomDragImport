@@ -56,21 +56,18 @@ class DynamicImport():
 
     def _pre(self):
         if self.pre_script is None: return
-        self.exec_script(self.pre_script)
+        self._exec_script(self.pre_script)
 
     def _post(self):
         if self.post_script is None: return
-        self.exec_script(self.post_script)
+        self._exec_script(self.post_script)
 
-    def exec_script(self, script: str):
-        file = get_ScriptFile(self.post_script)
+    def _exec_script(self, script: str):
+        file = get_ScriptFile(script)
         if not file.exists(): return
 
         with open(file, 'r', encoding='utf-8') as f:
             exec(f.read())
-
-
-#
 
 
 class DynamicPollDrop():
@@ -83,7 +80,7 @@ class DynamicPollDrop():
                 and context.area and context.area.type == self.poll_area)
 
 
-def gen_import_op(bl_idname, bl_label, bl_import_operator: str,bl_file_extensions,
+def gen_import_op(bl_idname, bl_label, bl_import_operator: str, bl_file_extensions,
                   kwargs: dict = None,
                   pre_script: str = None,
                   post_script: str = None):
@@ -93,7 +90,7 @@ def gen_import_op(bl_idname, bl_label, bl_import_operator: str,bl_file_extension
                   "bl_idname": bl_idname,
                   "bl_label": bl_label,
                   "bl_import_operator": bl_import_operator,
-                  "bl_file_extensions":bl_file_extensions,
+                  "bl_file_extensions": bl_file_extensions,
                   # custom
                   "kwargs": kwargs,
                   "invoke": DynamicImport.invoke,
