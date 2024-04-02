@@ -44,6 +44,8 @@ class DynamicImport():
                     else:
                         op_callable(filepath=filepath)
 
+                    self.report({'INFO'}, 'Imported: ' + file.name)
+
                 # restore select
                 select_objs += list(context.selected_objects)
                 if hasattr(context, 'selected_nodes'):

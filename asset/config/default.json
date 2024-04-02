@@ -18,6 +18,6 @@
         "bl_import_operator": "preferences.addon_install",
         "bl_file_extensions": ".zip",
         "poll_area": "PREFERENCES",
-        "foreach_post_script": "print_args"
+        "foreach_post_script": "print_args.py"
     }
 }

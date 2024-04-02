@@ -29,7 +29,7 @@ class CDI_ConfigItem(bpy.types.PropertyGroup):
     bl_import_operator: StringProperty(name='Operator')
     bl_file_extensions: StringProperty(name='File Extension', default='.txt')
     poll_area: EnumProperty(default='VIEW_3D', name='Area',
-                            items=[(k, v, '') for k, v in area_type.items()],)
+                            items=[(k, v, '') for k, v in area_type.items()], )
     # custom
     pre_script: StringProperty(name='Before Import all')
     post_script: StringProperty(name='After Import all')
@@ -68,11 +68,14 @@ def save_config_wm():
         if item.category not in cat_datas:
             cat_datas[item.category] = {}
         save_dict = dict(item.items())
-        # remove key 'name'
-        save_dict.pop('name')
-        save_dict['poll_area'] = item.poll_area
+        # process saving
+        save_dict.pop('name')  # remove name
+        save_dict[
+            'poll_area'] = item.poll_area  # seems that the EnumProperty save index instead of string, so handle here
+        for st in scripts_types:
+            if item.get(st) == '': save_dict.pop(st)  # remove empty script
         cat_datas[item.category].update({item.name: save_dict})
-
+    # save in file
     for category, datas in cat_datas.items():
         with open(get_AssetDir_path(AssetDir.CONFIG) / f'{category}.json', 'w', encoding='utf-8') as f:
             json.dump(datas, f, indent=4, allow_nan=True)
