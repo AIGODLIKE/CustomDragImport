@@ -44,7 +44,7 @@ class CDI_ConfigItem(bpy.types.PropertyGroup):
     post_script: StringProperty(name='After Import all')
     foreach_pre_script: StringProperty(name='Before Import one file')
     foreach_post_script: StringProperty(name='After Import one file')
-    operator_context: EnumProperty(default='INVOKE_DEFAULT', name='Context',
+    operator_context: EnumProperty(default='EXEC_DEFAULT', name='Context',
                                    items=[(k, k.replace('_', ' ').title(), '') for k in operator_context])
     # display
     category: StringProperty(default='default')
