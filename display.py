@@ -140,6 +140,52 @@ class CDI_UL_ConfigList(bpy.types.UIList):
         return filtered, ordered
 
 
+class CDI_OT_configlist_edit(bpy.types.Operator):
+    bl_idname = 'cdi.configlist_edit'
+    bl_label = 'Edit'
+
+    operator_type: EnumProperty(
+        items=[
+            ('ADD', 'Add', ''),
+            ('REMOVE', 'Remove', ''),
+            ('MOVE_UP', 'Move Up', ''),
+            ('MOVE_DOWN', 'Move Down', ''),
+        ]
+    )
+
+    def execute(self, context):
+        wm = context.window_manager
+        if self.operator_type == 'ADD':
+            new_item = wm.cdi_config_list.add()
+            new_item.name = f'Config{len(wm.cdi_config_list)}'
+            # correct index
+            old_index = wm.cdi_config_list_index
+            new_index = len(wm.cdi_config_list) - 1
+            wm.cdi_config_list_index = new_index
+
+            for i in range(old_index, new_index - 1):
+                bpy.ops.cdi.configlist_edit(operator_type='MOVE_UP')
+
+        elif self.operator_type == 'REMOVE':
+            index = wm.cdi_config_list_index
+            wm.cdi_config_list.remove(index)
+            wm.cdi_config_list_index = index- 1 if index != 0 else 0
+
+        elif self.operator_type in ['MOVE_UP', 'MOVE_DOWN']:
+            my_list = wm.cdi_config_list
+            index = wm.cdi_config_list_index
+            neighbor = index + (-1 if self.operator_type == 'MOVE_UP' else 1)
+            my_list.move(neighbor, index)
+            self.move_index(context)
+
+        return {'FINISHED'}
+    def move_index(self, context):
+        wm = context.window_manager
+        index = wm.cdi_config_list_index
+        new_index = index + (-1 if self.operator_type == 'MOVE_UP' else 1)
+        wm.cdi_config_list_index = max(0, min(new_index, len(wm.cdi_config_list) - 1))
+
+
 class CDI_OT_script_selector(bpy.types.Operator):
     bl_idname = 'cdi.script_selector'
     bl_label = 'Select Script'
@@ -238,7 +284,14 @@ def draw_layout(self, context, layout):
     # row.operator(CDI_OT_config_sl.bl_idname, text='Load').type = 'LOAD'
     row.operator(CDI_OT_config_sl.bl_idname, text='Save').type = 'SAVE'
 
-    layout.template_list(
+    row = layout.row()
+    col = row.column(align=True)
+    col.operator(CDI_OT_configlist_edit.bl_idname, icon='ADD', text='').operator_type = 'ADD'
+    col.operator(CDI_OT_configlist_edit.bl_idname, icon='REMOVE', text='').operator_type = 'REMOVE'
+    col.operator(CDI_OT_configlist_edit.bl_idname, icon='TRIA_UP', text='').operator_type = 'MOVE_UP'
+    col.operator(CDI_OT_configlist_edit.bl_idname, icon='TRIA_DOWN', text='').operator_type = 'MOVE_DOWN'
+
+    row.template_list(
         "CDI_UL_ConfigList", "Config List",
         wm, "cdi_config_list",
         wm, "cdi_config_list_index")
@@ -273,6 +326,7 @@ def register():
     bpy.utils.register_class(CDI_OT_config_sl)
     bpy.utils.register_class(CDI_OT_script_selector)
     bpy.utils.register_class(CDI_OT_idname_selector)
+    bpy.utils.register_class(CDI_OT_configlist_edit)
 
     bpy.types.WindowManager.cdi_config_list = CollectionProperty(type=CDI_ConfigItem)
     bpy.types.WindowManager.cdi_config_list_index = IntProperty()
@@ -289,6 +343,7 @@ def unregister():
     bpy.utils.unregister_class(CDI_OT_config_sl)
     bpy.utils.unregister_class(CDI_OT_script_selector)
     bpy.utils.unregister_class(CDI_OT_idname_selector)
+    bpy.utils.unregister_class(CDI_OT_configlist_edit)
 
     del bpy.types.WindowManager.cdi_config_show_advanced
     del bpy.types.WindowManager.cdi_config_category
