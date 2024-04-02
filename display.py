@@ -25,16 +25,16 @@ scripts_types = [
 
 class CDI_ConfigItem(bpy.types.PropertyGroup):
     name: StringProperty(name='Name', default='New Importer')
-    bl_idname: StringProperty()
-    bl_import_operator: StringProperty()
+    bl_idname: StringProperty(name='id')
+    bl_import_operator: StringProperty(name='Operator')
     bl_file_extensions: StringProperty(name='File Extension', default='.txt')
     poll_area: EnumProperty(default='VIEW_3D',
                             items=[(k, v, '') for k, v in area_type.items()], )
     # custom
-    pre_script: StringProperty(name='Pre Script')
-    post_script: StringProperty(name='Post Script')
-    foreach_pre_script: StringProperty(name='Foreach Pre Script')
-    foreach_post_script: StringProperty(name='Foreach Post Script')
+    pre_script: StringProperty(name='Before Import all')
+    post_script: StringProperty(name='After Import all')
+    foreach_pre_script: StringProperty(name='Before Import one file')
+    foreach_post_script: StringProperty(name='After Import one file')
     # display
     category: StringProperty(default='default')
 
@@ -71,7 +71,7 @@ def save_config_wm():
         # remove key 'name'
         save_dict.pop('name')
         save_dict['poll_area'] = item.poll_area
-        cat_datas[item.category].update({item.name:save_dict })
+        cat_datas[item.category].update({item.name: save_dict})
 
     for category, datas in cat_datas.items():
         with open(get_AssetDir_path(AssetDir.CONFIG) / f'{category}.json', 'w', encoding='utf-8') as f:
@@ -135,7 +135,7 @@ class CDI_OT_script_selector(bpy.types.Operator):
         enum_items = CDI_OT_script_selector._enum_script
         enum_items.clear()
         for file in get_ScriptDir().iterdir():
-            enum_items.append((file.stem, file.name, ''))
+            enum_items.append((file.name, file.stem, ''))
         return enum_items
 
     enum_script: EnumProperty(
@@ -148,6 +148,58 @@ class CDI_OT_script_selector(bpy.types.Operator):
         item = wm.cdi_config_list[wm.cdi_config_list_index]
         if self.scripts_types in scripts_types:
             setattr(item, self.scripts_types, self.enum_script)
+
+        return {"FINISHED"}
+
+    def invoke(self, context, event):
+        context.window_manager.invoke_search_popup(self)
+        return {'FINISHED'}
+
+
+class CDI_OT_idname_selector(bpy.types.Operator):
+    bl_idname = 'cdi.idname_selector'
+    bl_label = 'Select Operator'
+    bl_property = 'enum_idname'
+
+    _enum_idname = []  # store
+
+    def get_idname(self, context):
+        enum_items = CDI_OT_idname_selector._enum_idname
+        enum_items.clear()
+
+        def get_op_label(bl_idname: str):
+            opid = bl_idname.split(".")
+            opmod = getattr(bpy.ops, opid[0])
+            op = getattr(opmod, opid[1])
+            label = op.get_rna_type().bl_rna.name
+            return label
+
+        name_ops = {}
+        opsdir = dir(bpy.ops)
+        for opmodname in opsdir:
+            opmod = getattr(bpy.ops, opmodname)
+            opmoddir = dir(opmod)
+            for o in opmoddir:
+                bl_idname = opmodname + "." + o
+                label = get_op_label(bl_idname)
+                if bl_idname == label: continue  # pass the unnecessary operator
+                name_ops[label] = bl_idname
+
+        # sort by bl_idname
+        sort_ops = sorted(name_ops.items(), key=lambda x: x[0])
+        enum_items = [(bl_idname, label, "") for label, bl_idname in sort_ops]
+        print(enum_items)
+        return enum_items
+
+    enum_idname: EnumProperty(
+        name="Operators",
+        items=get_idname,
+    )
+
+    def execute(self, context):
+        wm = context.window_manager
+        item = wm.cdi_config_list[wm.cdi_config_list_index]
+        item.bl_import_operator = self.enum_idname
 
         return {"FINISHED"}
 
@@ -176,14 +228,19 @@ def draw_layout(self, context, layout):
     item = wm.cdi_config_list[wm.cdi_config_list_index] if wm.cdi_config_list else None
     if item:
         box = layout.box()
+        box.use_property_split = True
+
         box.prop(item, 'bl_idname')
-        box.prop(item, 'bl_import_operator')
+        row = box.row(align=True)
+        row.prop(item, 'bl_import_operator')
+        row.operator('CDI_OT_idname_selector', icon='VIEWZOOM', text='')
         box.prop(item, 'bl_file_extensions')
         box.prop(item, 'poll_area')
 
         box = box.box()
+        box.use_property_split = False
         show = wm.cdi_config_show_advanced
-        box.prop(wm, 'cdi_config_show_advanced', icon="TRIA_DOWN" if show else "TRIA_RIGHT", toggle=True)
+        box.prop(wm, 'cdi_config_show_advanced', icon="TRIA_DOWN" if show else "TRIA_RIGHT", toggle=True, emboss=False)
 
         if show:
             for st in scripts_types:
@@ -197,6 +254,7 @@ def register():
     bpy.utils.register_class(CDI_UL_ConfigList)
     bpy.utils.register_class(CDI_OT_config_sl)
     bpy.utils.register_class(CDI_OT_script_selector)
+    bpy.utils.register_class(CDI_OT_idname_selector)
 
     bpy.types.WindowManager.cdi_config_list = CollectionProperty(type=CDI_ConfigItem)
     bpy.types.WindowManager.cdi_config_list_index = IntProperty()
@@ -212,6 +270,7 @@ def unregister():
     bpy.utils.unregister_class(CDI_UL_ConfigList)
     bpy.utils.unregister_class(CDI_OT_config_sl)
     bpy.utils.unregister_class(CDI_OT_script_selector)
+    bpy.utils.unregister_class(CDI_OT_idname_selector)
 
     del bpy.types.WindowManager.cdi_config_show_advanced
     del bpy.types.WindowManager.cdi_config_category
