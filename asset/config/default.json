@@ -4,7 +4,8 @@
         "bl_import_operator":"wm.obj_import",
         "bl_file_extensions":".obj",
         "poll_area":"VIEW_3D",
-        "post_script": "view_select.py"
+        "post_script": "view_select.py",
+        "foreach_pre_script": "print_args.py"
     },
     "Batch STL Import":{
         "bl_idname":"cdi.stl_import",

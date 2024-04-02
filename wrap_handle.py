@@ -26,7 +26,7 @@ class DynamicImport():
         if not self.directory:
             return {'CANCELLED'}
 
-        with self._process_scripts(self.pre_script, self.post_script):
+        with self._process_scripts(self.pre_script, self.post_script,{'directory': self.directory,'files':self.files}):
             select_objs = []
 
             for file in self.files:
@@ -36,7 +36,7 @@ class DynamicImport():
                 cat, name = self.bl_import_operator.split('.')
                 op_callable = getattr(getattr(bpy.ops, cat), name)
 
-                with self._process_scripts(self.foreach_pre_script, self.foreach_post_script):
+                with self._process_scripts(self.foreach_pre_script, self.foreach_post_script, {'filepath': filepath}):
                     if self.kwargs:
                         op_callable(filepath=filepath, **self.kwargs)
                     else:
@@ -57,18 +57,21 @@ class DynamicImport():
         return {'RUNNING_MODAL'}
 
     @contextmanager
-    def _process_scripts(self, pre: str | None, post: str | None):
+    def _process_scripts(self, pre: str | None, post: str | None, kwargs: dict | None = None):
         if pre is not None:
-            self._exec_script(pre)
+            self._exec_script(pre, kwargs)
         yield
         if post is not None:
-            self._exec_script(post)
+            self._exec_script(post, kwargs)
 
-    def _exec_script(self, script: str):
+    def _exec_script(self, script: str, kwargs: dict):
         file = get_ScriptFile(script)
         if not file.exists(): return
         with open(file, 'r', encoding='utf-8') as f:
-            exec(f.read())
+            data = f.read()
+            # pass in kwargs
+            kwargs = kwargs if kwargs else {}
+            exec(data, globals(), locals())
 
 
 class DynamicPollDrop():

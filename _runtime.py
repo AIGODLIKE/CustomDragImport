@@ -29,8 +29,11 @@ def ensure_op_handles():
             bl_file_extensions=values['bl_file_extensions']
         )
         # external scripts
-        for s in scripts_types:
-            if s in values: setattr(op, 's', values[s])
+        op.pre_script = values.get('pre_script')
+        op.post_script = values.get('post_script')
+        op.foreach_pre_script = values.get('foreach_pre_script')
+        op.foreach_post_script = values.get('foreach_post_script')
+
         # handle
         handle = gen_import_handle(
             bl_label=label,
