@@ -47,7 +47,8 @@ class DynamicImport():
                     self.report({'INFO'}, 'Imported: ' + file.name)
 
                 # restore select
-                select_objs += list(context.selected_objects)
+                if hasattr(context, 'selected_objects'):
+                    select_objs += list(context.selected_objects)
                 if hasattr(context, 'selected_nodes'):
                     select_nodes += list(context.selected_nodes)
             # just make it behavior like blender's default drag

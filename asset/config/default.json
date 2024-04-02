@@ -19,5 +19,11 @@
         "bl_file_extensions": ".zip",
         "poll_area": "PREFERENCES",
         "foreach_post_script": "print_args.py"
+    },
+    "Batch Blend File Open": {
+        "bl_idname": "cdi.addon_install",
+        "bl_import_operator": "wm.open_mainfile",
+        "bl_file_extensions": ".blend",
+        "poll_area": "VIEW_3D"
     }
 }
