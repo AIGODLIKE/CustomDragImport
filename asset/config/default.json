@@ -11,5 +11,11 @@
         "bl_import_operator":"wm.stl_import",
         "bl_file_extensions":".stl",
         "poll_area":"VIEW_3D"
+    },
+    "Batch Addon Install":{
+        "bl_idname": "cdi.addon_install",
+        "bl_import_operator":"preferences.addon_install",
+        "bl_file_extensions":".zip",
+        "poll_area":"VIEW_3D"
     }
 }
