@@ -1,6 +1,7 @@
 import bpy
 import os
 from pathlib import Path
+from contextlib import contextmanager
 
 from .public_path import get_ScriptFile
 
@@ -18,33 +19,34 @@ class DynamicImport():
     kwargs: dict
     pre_script: str
     post_script: str
+    foreach_pre_script: str
+    foreach_post_script: str
 
     def execute(self, context):
         if not self.directory:
             return {'CANCELLED'}
-        # pre
-        self._pre()
 
-        select_objs = []
+        with self._process_scripts(self.pre_script, self.post_script):
+            select_objs = []
 
-        for file in self.files:
-            if not file.name.endswith(self.bl_file_extensions): continue
+            for file in self.files:
+                if not file.name.endswith(self.bl_file_extensions): continue
 
-            filepath = os.path.join(self.directory, file.name)
-            cat, name = self.bl_import_operator.split('.')
-            op_callable = getattr(getattr(bpy.ops, cat), name)
-            if self.kwargs:
-                op_callable(filepath=filepath, **self.kwargs)
-            else:
-                op_callable(filepath=filepath)
-            # restore select
-            select_objs += list(context.selected_objects)
+                filepath = os.path.join(self.directory, file.name)
+                cat, name = self.bl_import_operator.split('.')
+                op_callable = getattr(getattr(bpy.ops, cat), name)
 
-        for obj in select_objs:
-            obj.select_set(True)
+                with self._process_scripts(self.foreach_pre_script, self.foreach_post_script):
+                    if self.kwargs:
+                        op_callable(filepath=filepath, **self.kwargs)
+                    else:
+                        op_callable(filepath=filepath)
 
-        # post
-        self._post()
+                # restore select
+                select_objs += list(context.selected_objects)
+            # just make it behavior like blender's default drag
+            for obj in select_objs:
+                obj.select_set(True)
 
         return {'FINISHED'}
 
@@ -54,18 +56,17 @@ class DynamicImport():
         context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
 
-    def _pre(self):
-        if self.pre_script is None: return
-        self._exec_script(self.pre_script)
-
-    def _post(self):
-        if self.post_script is None: return
-        self._exec_script(self.post_script)
+    @contextmanager
+    def _process_scripts(self, pre: str | None, post: str | None):
+        if pre is not None:
+            self._exec_script(pre)
+        yield
+        if post is not None:
+            self._exec_script(post)
 
     def _exec_script(self, script: str):
         file = get_ScriptFile(script)
         if not file.exists(): return
-
         with open(file, 'r', encoding='utf-8') as f:
             exec(f.read())
 
@@ -83,7 +84,9 @@ class DynamicPollDrop():
 def gen_import_op(bl_idname, bl_label, bl_import_operator: str, bl_file_extensions,
                   kwargs: dict = None,
                   pre_script: str = None,
-                  post_script: str = None):
+                  post_script: str = None,
+                  foreach_pre_script: str = None,
+                  foreach_post_script: str = None):
     op = type(bl_idname,
               (bpy.types.Operator, DynamicImport),
               {
@@ -97,6 +100,8 @@ def gen_import_op(bl_idname, bl_label, bl_import_operator: str, bl_file_extensio
                   "execute": DynamicImport.execute,
                   "pre_script": pre_script,
                   "post_script": post_script,
+                  "foreach_pre_script": foreach_pre_script,
+                  "foreach_post_script": foreach_post_script
               }
               )
 

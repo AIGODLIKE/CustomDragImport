@@ -5,6 +5,13 @@ from .wrap_handle import gen_import_op, gen_import_handle
 G_ops = {}
 G_handles = {}
 
+scripts_types = [
+    'pre_script',
+    'post_script'
+    'foreach_pre_script',
+    'foreach_post_script'
+]
+
 
 def ensure_op_handles():
     datas = {}
@@ -21,11 +28,10 @@ def ensure_op_handles():
             bl_import_operator=values['bl_import_operator'],
             bl_file_extensions=values['bl_file_extensions']
         )
-        if 'pre_script' in values:
-            op.pre_script = values['pre_script']
-        if 'post_script' in values:
-            op.post_script = values['post_script']
-
+        # external scripts
+        for s in scripts_types:
+            if s in values: setattr(op, 's', values[s])
+        # handle
         handle = gen_import_handle(
             bl_label=label,
             bl_import_operator=values['bl_idname'],
@@ -33,7 +39,6 @@ def ensure_op_handles():
             bl_file_extensions=values['bl_file_extensions'],
             poll_area=values['poll_area']
         )
-
         G_ops.update({label: op})
         G_handles.update({label: handle})
 
