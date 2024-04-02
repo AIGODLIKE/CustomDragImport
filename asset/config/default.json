@@ -1,6 +1,5 @@
 {
     "Batch Obj Import": {
-        "bl_idname": "cdi.obj_import",
         "bl_import_operator": "wm.obj_import",
         "bl_file_extensions": ".obj",
         "poll_area": "VIEW_3D",
@@ -9,29 +8,25 @@
         "operator_context": "EXEC_DEFAULT"
     },
     "Batch STL Import": {
-        "bl_idname": "cdi.stl_import",
         "bl_import_operator": "wm.stl_import",
         "bl_file_extensions": ".stl",
         "poll_area": "VIEW_3D",
-        "operator_context": "INVOKE_DEFAULT"
+        "operator_context": "EXEC_DEFAULT"
     },
     "Batch Addon Install": {
-        "bl_idname": "cdi.addon_install",
         "bl_import_operator": "preferences.addon_install",
         "bl_file_extensions": ".zip",
-        "poll_area": "PREFERENCES",
+        "poll_area": "VIEW_3D",
         "foreach_post_script": "print_args.py",
-        "operator_context": "INVOKE_DEFAULT"
+        "operator_context": "EXEC_DEFAULT"
     },
     "Open Blend File": {
-        "bl_idname": "cdi.open_blend_file",
         "bl_import_operator": "wm.open_mainfile",
         "bl_file_extensions": ".blend",
         "poll_area": "VIEW_3D",
         "operator_context": "INVOKE_DEFAULT"
     },
     "Append Blend File": {
-        "bl_idname": "cdi.append_blend_file",
         "bl_import_operator": "wm.append",
         "bl_file_extensions": ".blend",
         "poll_area": "VIEW_3D",

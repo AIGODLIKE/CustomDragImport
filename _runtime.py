@@ -14,10 +14,11 @@ def ensure_op_handles():
             data = json.load(f)
             datas.update(data)
     # register in op
-    for label, values in datas.items():
+    for index, (label, values) in enumerate(datas.items()):
+        new_idname = f'cdi.import_{index}'
         op = gen_import_op(
             bl_label=label,
-            bl_idname=values['bl_idname'],
+            bl_idname=new_idname,
             bl_import_operator=values['bl_import_operator'],
             bl_file_extensions=values['bl_file_extensions'],
             operator_context=values.get('operator_context', 'INVOKE_DEFAULT'),
@@ -31,8 +32,8 @@ def ensure_op_handles():
         # handle
         handle = gen_import_handle(
             bl_label=label,
-            bl_import_operator=values['bl_idname'],
-            bl_idname=values['bl_idname'] + '_handle',
+            bl_import_operator=new_idname,
+            bl_idname=f"CDI_FH_handle{index}",
             bl_file_extensions=values['bl_file_extensions'],
             poll_area=values['poll_area']
         )

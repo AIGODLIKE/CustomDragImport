@@ -35,7 +35,6 @@ operator_context = [
 
 class CDI_ConfigItem(bpy.types.PropertyGroup):
     name: StringProperty(name='Name', default='New Importer')
-    bl_idname: StringProperty(name='id')
     bl_import_operator: StringProperty(name='Operator')
     bl_file_extensions: StringProperty(name='File Extension', default='.txt')
     poll_area: EnumProperty(default='VIEW_3D', name='Area',
@@ -249,7 +248,6 @@ def draw_layout(self, context, layout):
         box = layout.box()
         box.use_property_split = True
 
-        box.prop(item, 'bl_idname')
         row = box.row(align=True)
         row.prop(item, 'bl_import_operator')
         row.operator('CDI_OT_idname_selector', icon='VIEWZOOM', text='')
