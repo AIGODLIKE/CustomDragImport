@@ -28,8 +28,8 @@ class CDI_ConfigItem(bpy.types.PropertyGroup):
     bl_idname: StringProperty(name='id')
     bl_import_operator: StringProperty(name='Operator')
     bl_file_extensions: StringProperty(name='File Extension', default='.txt')
-    poll_area: EnumProperty(default='VIEW_3D',
-                            items=[(k, v, '') for k, v in area_type.items()], )
+    poll_area: EnumProperty(default='VIEW_3D', name='Area',
+                            items=[(k, v, '') for k, v in area_type.items()],)
     # custom
     pre_script: StringProperty(name='Before Import all')
     post_script: StringProperty(name='After Import all')

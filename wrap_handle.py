@@ -26,8 +26,10 @@ class DynamicImport():
         if not self.directory:
             return {'CANCELLED'}
 
-        with self._process_scripts(self.pre_script, self.post_script,{'directory': self.directory,'files':self.files}):
+        with self._process_scripts(self.pre_script, self.post_script,
+                                   {'directory': self.directory, 'files': self.files}):
             select_objs = []
+            select_nodes = []
 
             for file in self.files:
                 if not file.name.endswith(self.bl_file_extensions): continue
@@ -44,9 +46,17 @@ class DynamicImport():
 
                 # restore select
                 select_objs += list(context.selected_objects)
+                if hasattr(context, 'selected_nodes'):
+                    select_nodes += list(context.selected_nodes)
             # just make it behavior like blender's default drag
             for obj in select_objs:
                 obj.select_set(True)
+            if hasattr(context, 'selected_nodes'):
+                tree = context.space_data.node_tree
+                for node in select_nodes:
+                    node.select = True
+                if select_nodes:
+                    tree.nodes.active = select_nodes[0]
 
         return {'FINISHED'}
 
