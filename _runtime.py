@@ -6,8 +6,6 @@ G_ops = {}
 G_handles = {}
 
 
-
-
 def ensure_op_handles():
     datas = {}
     # get configs dict from path
@@ -21,7 +19,8 @@ def ensure_op_handles():
             bl_label=label,
             bl_idname=values['bl_idname'],
             bl_import_operator=values['bl_import_operator'],
-            bl_file_extensions=values['bl_file_extensions']
+            bl_file_extensions=values['bl_file_extensions'],
+            operator_context=values.get('operator_context', 'INVOKE_DEFAULT'),
         )
         # external scripts
         op.pre_script = values.get('pre_script')

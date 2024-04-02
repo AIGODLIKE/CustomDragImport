@@ -14,7 +14,7 @@ class DynamicImport():
     # pass in
     bl_file_extensions: str
     bl_import_operator: str
-
+    operator_context:str
     # custom
     kwargs: dict
     pre_script: str
@@ -40,9 +40,9 @@ class DynamicImport():
 
                 with self._process_scripts(self.foreach_pre_script, self.foreach_post_script, {'filepath': filepath}):
                     if self.kwargs:
-                        op_callable(filepath=filepath, **self.kwargs)
+                        op_callable(self.operator_context,filepath=filepath, **self.kwargs)
                     else:
-                        op_callable(filepath=filepath)
+                        op_callable(self.operator_context,filepath=filepath)
 
                     self.report({'INFO'}, 'Imported: ' + file.name)
 
@@ -97,7 +97,7 @@ class DynamicPollDrop():
                 and context.area and context.area.type == self.poll_area)
 
 
-def gen_import_op(bl_idname, bl_label, bl_import_operator: str, bl_file_extensions,
+def gen_import_op(bl_idname, bl_label, bl_import_operator: str, bl_file_extensions,operator_context: str = 'INVOKE_DEFAULT',
                   kwargs: dict = None,
                   pre_script: str = None,
                   post_script: str = None,
@@ -110,6 +110,7 @@ def gen_import_op(bl_idname, bl_label, bl_import_operator: str, bl_file_extensio
                   "bl_label": bl_label,
                   "bl_import_operator": bl_import_operator,
                   "bl_file_extensions": bl_file_extensions,
+                  "operator_context":operator_context,
                   # custom
                   "kwargs": kwargs,
                   "invoke": DynamicImport.invoke,

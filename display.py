@@ -22,6 +22,21 @@ scripts_types = [
     'foreach_post_script'
 ]
 
+operator_context = [
+    'INVOKE_DEFAULT',
+    # 'INVOKE_REGION_WIN',
+    # 'INVOKE_REGION_CHANNELS',
+    # 'INVOKE_REGION_PREVIEW',
+    # 'INVOKE_AREA',
+    # 'INVOKE_SCREEN',
+    'EXEC_DEFAULT',
+    # 'EXEC_REGION_WIN',
+    # 'EXEC_REGION_CHANNELS',
+    # 'EXEC_REGION_PREVIEW',
+    # 'EXEC_AREA',
+    # 'EXEC_SCREEN',
+]
+
 
 class CDI_ConfigItem(bpy.types.PropertyGroup):
     name: StringProperty(name='Name', default='New Importer')
@@ -35,6 +50,8 @@ class CDI_ConfigItem(bpy.types.PropertyGroup):
     post_script: StringProperty(name='After Import all')
     foreach_pre_script: StringProperty(name='Before Import one file')
     foreach_post_script: StringProperty(name='After Import one file')
+    operator_context: EnumProperty(default='INVOKE_DEFAULT', name='Context',
+                                   items=[(k, k.replace('_', ' ').title(), '') for k in operator_context])
     # display
     category: StringProperty(default='default')
 
@@ -70,8 +87,8 @@ def save_config_wm():
         save_dict = dict(item.items())
         # process saving
         save_dict.pop('name')  # remove name
-        save_dict[
-            'poll_area'] = item.poll_area  # seems that the EnumProperty save index instead of string, so handle here
+        save_dict['poll_area'] = item.poll_area  # EnumProperty save index instead of string, so handle here
+        save_dict['operator_context'] = item.operator_context  # the same as above
         for st in scripts_types:
             if item.get(st) == '': save_dict.pop(st)  # remove empty script
         cat_datas[item.category].update({item.name: save_dict})
@@ -239,6 +256,7 @@ def draw_layout(self, context, layout):
         row.operator('CDI_OT_idname_selector', icon='VIEWZOOM', text='')
         box.prop(item, 'bl_file_extensions')
         box.prop(item, 'poll_area')
+        box.prop(item, 'operator_context')
 
         box = box.box()
         box.use_property_split = False
