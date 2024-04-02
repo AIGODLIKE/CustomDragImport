@@ -27,5 +27,9 @@ def save_ConfigFile(filename=ConfigFiles.DEFAULT.value, data: dict = None):
         json.dump(data, fp=f)
 
 
+def get_ScriptDir():
+    return get_AssetDir_path(AssetDir.SCRIPTS)
+
+
 def get_ScriptFile(filename):
-    return get_AssetDir_path(AssetDir.SCRIPTS).joinpath(filename)
+    return get_ScriptDir().joinpath(filename)

@@ -5,12 +5,7 @@ from .wrap_handle import gen_import_op, gen_import_handle
 G_ops = {}
 G_handles = {}
 
-scripts_types = [
-    'pre_script',
-    'post_script'
-    'foreach_pre_script',
-    'foreach_post_script'
-]
+
 
 
 def ensure_op_handles():
