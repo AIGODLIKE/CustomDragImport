@@ -8,11 +8,6 @@ area_type = {
     'IMAGE_EDITOR': 'Image Editor',
     'NODE_EDITOR': 'Node Editor',
     'TEXT_EDITOR': 'Text Editor',
-    'CONSOLE': 'Console',
-    'OUTLINER': 'Outliner',
-    'PROPERTIES': 'Properties',
-    'FILE_BROWSER': 'File Browser',
-    'PREFERENCES': 'Preferences',
 }
 
 scripts_types = [
@@ -96,6 +91,10 @@ def save_config_wm():
     for category, datas in cat_datas.items():
         with open(get_AssetDir_path(AssetDir.CONFIG) / f'{category}.json', 'w', encoding='utf-8') as f:
             json.dump(datas, f, indent=4, allow_nan=True)
+
+    from . import _runtime
+    _runtime.unregister()
+    _runtime.register()
 
 
 class CDI_OT_config_sl(bpy.types.Operator):
