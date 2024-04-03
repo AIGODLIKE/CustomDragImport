@@ -297,6 +297,8 @@ class CDI_OT_file_ext_editor(bpy.types.Operator):
             if not self.ext.startswith('.'):
                 self.ext = '.' + self.ext
             item.bl_file_extensions += ';' + self.ext
+            if item.bl_file_extensions.startswith(';'):
+                item.bl_file_extensions = item.bl_file_extensions[1:]
 
         context.area.tag_redraw()
         return {'FINISHED'}

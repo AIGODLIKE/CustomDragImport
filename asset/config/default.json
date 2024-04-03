@@ -3,8 +3,7 @@
         "bl_import_operator": "wm.obj_import",
         "bl_file_extensions": ".obj",
         "poll_area": "VIEW_3D",
-        "operator_context": "EXEC_DEFAULT",
-        "foreach_post_script": "print_args.py"
+        "operator_context": "EXEC_DEFAULT"
     },
     "Batch STL Import": {
         "bl_import_operator": "wm.stl_import",
