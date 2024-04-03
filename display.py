@@ -274,6 +274,38 @@ class CDI_OT_idname_selector(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class CDI_OT_file_ext_editor(bpy.types.Operator):
+    bl_idname = 'cdi.file_ext_editor'
+    bl_label = 'Edit'
+
+    operator_type: EnumProperty(
+        items=[('ADD', 'Add', ''), ('REMOVE', 'Remove', '')], options={'SKIP_SAVE', 'HIDDEN'})
+
+    ext: StringProperty(name='New', options={'SKIP_SAVE'})
+
+    def execute(self, context):
+        item = context.window_manager.cdi_config_list[context.window_manager.cdi_config_list_index]
+        if self.operator_type == 'REMOVE':
+            ori_list = item.bl_file_extensions.split(';')
+            ori_list.remove(self.ext)
+            item.bl_file_extensions = ';'.join(ori_list)
+            if item.bl_file_extensions.startswith(';'):
+                item.bl_file_extensions = item.bl_file_extensions[1:]
+        else:
+            if not self.ext.startswith('.'):
+                self.ext = '.' + self.ext
+            item.bl_file_extensions += ';' + self.ext
+
+        context.area.tag_redraw()
+        return {'FINISHED'}
+
+    def invoke(self, context, event):
+        if self.operator_type == 'ADD':
+            return context.window_manager.invoke_props_dialog(self)
+        else:
+            return self.execute(context)
+
+
 def draw_layout(self, context, layout):
     wm = context.window_manager
 
@@ -299,17 +331,33 @@ def draw_layout(self, context, layout):
         wm, "cdi_config_list_index")
 
     item = wm.cdi_config_list[wm.cdi_config_list_index] if wm.cdi_config_list else None
+
     if item:
         box = layout.box()
-        box.use_property_split = True
+        # box.use_property_split = True
 
         row = box.row(align=True)
         row.prop(item, 'bl_import_operator')
         row.operator('CDI_OT_idname_selector', icon='VIEWZOOM', text='')
-        box.prop(item, 'bl_file_extensions')
+        ################
+        # box.prop(item, 'bl_file_extensions')
+        row = box.split(factor=0.5)
+        row.label(text='File Extensions')
+        if ext_list := item.bl_file_extensions.split(';'):
+            ext_list = [ext for ext in ext_list if ext != '']
+            for ext in ext_list:
+                row = row.row()
+                op = row.operator('CDI_OT_file_ext_editor', text=ext, icon='X')
+                op.ext = ext
+                op.operator_type = 'REMOVE'
+
+        row = row.row()
+        op = row.operator('CDI_OT_file_ext_editor', icon='ADD', text='')
+        op.operator_type = 'ADD'
+
         box.prop(item, 'poll_area')
         box.prop(item, 'operator_context')
-
+        #######################
         box = box.box()
         box.use_property_split = False
         show = wm.cdi_config_show_advanced
@@ -329,6 +377,7 @@ def register():
     bpy.utils.register_class(CDI_OT_script_selector)
     bpy.utils.register_class(CDI_OT_idname_selector)
     bpy.utils.register_class(CDI_OT_configlist_edit)
+    bpy.utils.register_class(CDI_OT_file_ext_editor)
 
     bpy.types.WindowManager.cdi_config_list = CollectionProperty(type=CDI_ConfigItem)
     bpy.types.WindowManager.cdi_config_list_index = IntProperty()
@@ -346,6 +395,7 @@ def unregister():
     bpy.utils.unregister_class(CDI_OT_script_selector)
     bpy.utils.unregister_class(CDI_OT_idname_selector)
     bpy.utils.unregister_class(CDI_OT_configlist_edit)
+    bpy.utils.unregister_class(CDI_OT_file_ext_editor)
 
     del bpy.types.WindowManager.cdi_config_show_advanced
     del bpy.types.WindowManager.cdi_config_category

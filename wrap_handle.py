@@ -36,7 +36,8 @@ class DynamicImport():
             select_nodes = []
 
             for file in self.files:
-                if not file.name.endswith(self.bl_file_extensions): continue
+                has_ext = self._check_extension(file.name, self.bl_file_extensions)
+                if not has_ext: continue
 
                 filepath = os.path.join(self.directory, file.name)
                 try:
@@ -93,6 +94,15 @@ class DynamicImport():
             # pass in kwargs
             kwargs = kwargs if kwargs else {}
             exec(data, globals(), locals())
+
+    def _check_extension(self, filename, ext_str: str) -> bool:
+        if ';' not in ext_str:
+            return filename.endswith(ext_str)
+        else:
+            exts = ext_str.split(';')
+            for ext in exts:
+                if filename.endswith(ext): return True
+            return False
 
 
 class DynamicPollDrop():
