@@ -3,9 +3,8 @@
         "bl_import_operator": "wm.obj_import",
         "bl_file_extensions": ".obj",
         "poll_area": "VIEW_3D",
-        "post_script": "view_select.py",
-        "foreach_pre_script": "print_args.py",
-        "operator_context": "EXEC_DEFAULT"
+        "operator_context": "EXEC_DEFAULT",
+        "foreach_post_script": "print_args.py"
     },
     "Batch STL Import": {
         "bl_import_operator": "wm.stl_import",
@@ -15,7 +14,7 @@
     },
     "Batch Addon Install": {
         "bl_import_operator": "preferences.addon_install",
-        "bl_file_extensions": ".zip",
+        "bl_file_extensions": ".zip;.py",
         "poll_area": "VIEW_3D",
         "foreach_post_script": "print_args.py",
         "operator_context": "EXEC_DEFAULT"

@@ -370,7 +370,8 @@ def draw_layout(self, context, layout):
                 row = box.row()
                 row.prop(item, st)
                 row.operator(CDI_OT_script_selector.bl_idname, icon='VIEWZOOM', text='').scripts_types = st
-
+            # open folder
+            box.operator('wm.path_open', text='Open Script Folder').filepath = str(get_ScriptDir())
 
 def register():
     bpy.utils.register_class(CDI_ConfigItem)
