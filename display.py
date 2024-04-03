@@ -35,7 +35,7 @@ operator_context = [
 
 class CDI_ConfigItem(bpy.types.PropertyGroup):
     name: StringProperty(name='Name', default='New Importer')
-    bl_import_operator: StringProperty(name='Operator')
+    bl_import_operator: StringProperty(name='Operator', default='')
     bl_file_extensions: StringProperty(name='File Extension', default='.txt')
     poll_area: EnumProperty(default='VIEW_3D', name='Area',
                             items=[(k, v, '') for k, v in area_type.items()], )
@@ -81,6 +81,7 @@ def save_config_wm():
         save_dict = dict(item.items())
         # process saving
         save_dict.pop('name')  # remove name
+        save_dict['bl_import_operator'] = item.bl_import_operator  # empty need to save manually
         save_dict['poll_area'] = item.poll_area  # EnumProperty save index instead of string, so handle here
         save_dict['operator_context'] = item.operator_context  # the same as above
         for st in scripts_types:
@@ -169,7 +170,7 @@ class CDI_OT_configlist_edit(bpy.types.Operator):
         elif self.operator_type == 'REMOVE':
             index = wm.cdi_config_list_index
             wm.cdi_config_list.remove(index)
-            wm.cdi_config_list_index = index- 1 if index != 0 else 0
+            wm.cdi_config_list_index = index - 1 if index != 0 else 0
 
         elif self.operator_type in ['MOVE_UP', 'MOVE_DOWN']:
             my_list = wm.cdi_config_list
@@ -179,6 +180,7 @@ class CDI_OT_configlist_edit(bpy.types.Operator):
             self.move_index(context)
 
         return {'FINISHED'}
+
     def move_index(self, context):
         wm = context.window_manager
         index = wm.cdi_config_list_index

@@ -31,5 +31,12 @@
         "bl_file_extensions": ".blend",
         "poll_area": "VIEW_3D",
         "operator_context": "INVOKE_DEFAULT"
+    },
+    "Empty Test": {
+        "bl_import_operator": "",
+        "bl_file_extensions": ".blend",
+        "foreach_post_script": "print_args.py",
+        "poll_area": "VIEW_3D",
+        "operator_context": "EXEC_DEFAULT"
     }
 }
