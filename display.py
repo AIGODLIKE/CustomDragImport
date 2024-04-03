@@ -92,6 +92,7 @@ def save_config_wm():
         with open(get_AssetDir_path(AssetDir.CONFIG) / f'{category}.json', 'w', encoding='utf-8') as f:
             json.dump(datas, f, indent=4, allow_nan=True)
 
+    load_config_wm()
     from . import _runtime
     _runtime.unregister()
     _runtime.register()
