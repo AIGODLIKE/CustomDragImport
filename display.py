@@ -109,6 +109,7 @@ class CDI_OT_config_sl(bpy.types.Operator):
             save_config_wm()
         else:
             load_config_wm()
+        self.report({'INFO'}, f'{self.type.title()} config')
         return {"FINISHED"}
 
     def invoke(self, context, event):
