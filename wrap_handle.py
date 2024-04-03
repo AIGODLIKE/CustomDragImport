@@ -6,6 +6,10 @@ from contextlib import contextmanager
 from .public_path import get_ScriptFile
 
 
+def empty_op(operator_context: str, filepath, kwargs=None):
+    print('Invalid/Empty Operator: ', operator_context, filepath, kwargs)
+
+
 class DynamicImport():
     # must have
     directory: bpy.props.StringProperty(subtype='FILE_PATH', options={'SKIP_SAVE'})
@@ -14,7 +18,7 @@ class DynamicImport():
     # pass in
     bl_file_extensions: str
     bl_import_operator: str
-    operator_context:str
+    operator_context: str
     # custom
     kwargs: dict
     pre_script: str
@@ -35,14 +39,18 @@ class DynamicImport():
                 if not file.name.endswith(self.bl_file_extensions): continue
 
                 filepath = os.path.join(self.directory, file.name)
-                cat, name = self.bl_import_operator.split('.')
-                op_callable = getattr(getattr(bpy.ops, cat), name)
+                try:
+                    cat, name = self.bl_import_operator.split('.')
+                    op_callable = getattr(getattr(bpy.ops, cat), name)
+                except (ValueError, AttributeError):  # user can empty the operator
+                    self.report({'WARNING'}, 'Invalid/Empty Operator: ' + self.bl_import_operator)
+                    op_callable = empty_op
 
                 with self._process_scripts(self.foreach_pre_script, self.foreach_post_script, {'filepath': filepath}):
                     if self.kwargs:
-                        op_callable(self.operator_context,filepath=filepath, **self.kwargs)
+                        op_callable(self.operator_context, filepath=filepath, **self.kwargs)
                     else:
-                        op_callable(self.operator_context,filepath=filepath)
+                        op_callable(self.operator_context, filepath=filepath)
 
                     self.report({'INFO'}, 'Imported: ' + file.name)
 
@@ -97,7 +105,8 @@ class DynamicPollDrop():
                 and context.area and context.area.type == self.poll_area)
 
 
-def gen_import_op(bl_idname, bl_label, bl_import_operator: str, bl_file_extensions,operator_context: str = 'INVOKE_DEFAULT',
+def gen_import_op(bl_idname, bl_label, bl_import_operator: str, bl_file_extensions,
+                  operator_context: str = 'INVOKE_DEFAULT',
                   kwargs: dict = None,
                   pre_script: str = None,
                   post_script: str = None,
@@ -110,7 +119,7 @@ def gen_import_op(bl_idname, bl_label, bl_import_operator: str, bl_file_extensio
                   "bl_label": bl_label,
                   "bl_import_operator": bl_import_operator,
                   "bl_file_extensions": bl_file_extensions,
-                  "operator_context":operator_context,
+                  "operator_context": operator_context,
                   # custom
                   "kwargs": kwargs,
                   "invoke": DynamicImport.invoke,
