@@ -52,7 +52,10 @@ class DynamicImport():
                     op_callable = empty_op
 
                 with self._process_scripts(self.foreach_pre_script, self.foreach_post_script,
-                                           {'filepath': filepath, 'index': index}):
+                                           {'filepath': filepath, 'index': index,
+                                            'selected_objects': select_objs,
+                                            'selected_nodes': select_nodes
+                                            }):
                     if self.kwargs:
                         op_callable(self.operator_context, filepath=filepath, **self.kwargs)
                     else:
@@ -62,18 +65,20 @@ class DynamicImport():
 
                 # restore select
                 if hasattr(context, 'selected_objects'):
-                    select_objs += list(context.selected_objects)
+                    select_objs.append(list(context.selected_objects))
                 if hasattr(context, 'selected_nodes'):
-                    select_nodes += list(context.selected_nodes)
+                    select_nodes.append(list(context.selected_nodes))
             # just make it behavior like blender's default drag
-            for obj in select_objs:
-                obj.select_set(True)
+            for obj_list in select_objs:
+                for obj in obj_list:
+                    obj.select_set(True)
             if hasattr(context, 'selected_nodes'):
                 tree = context.space_data.node_tree
-                for node in select_nodes:
-                    node.select = True
+                for node_list in select_nodes:
+                    for node in node_list:
+                        node.select = True
                 if select_nodes:
-                    tree.nodes.active = select_nodes[0]
+                    tree.nodes.active = select_nodes[0][0]
 
         return {'FINISHED'}
 
