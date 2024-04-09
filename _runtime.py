@@ -69,7 +69,11 @@ class CDI_OT_popup_operator(bpy.types.Operator):
     def execute(self, context):
         wm = context.window_manager
         with clipboard.clipboard():
-            files = clipboard.get_FILEPATHS()
+            try:
+                files = clipboard.get_FILEPATHS()
+            except clipboard.ClipetteWin32ClipboardError:
+                self.report({'ERROR'}, 'Clipboard is empty!')
+                return {'CANCELLED'}
 
         files = [Path(file) for file in files]
         files = self.filter_files(files)
@@ -93,6 +97,11 @@ class CDI_OT_popup_operator(bpy.types.Operator):
 
 
 def register():
+    try:
+        unregister()
+    except:
+        pass
+
     ensure_op_handles()
 
     import bpy
