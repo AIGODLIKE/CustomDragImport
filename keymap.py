@@ -1,20 +1,11 @@
 import bpy
-from .display import draw_layout, area_type
-from ._runtime import CDI_OT_popup_operator
-
-
-class CDI_Preference(bpy.types.AddonPreferences):
-    bl_idname = __package__
-
-    def draw(self, context):
-        layout = self.layout
-        draw_layout(self, context, layout)
-
+from .display import draw_layout
+from .public_data import area_type
 
 addon_keymaps = []
 
 
-def add_km():
+def register():
     wm = bpy.context.window_manager
 
     for k, v in area_type.items():
@@ -25,7 +16,7 @@ def add_km():
         addon_keymaps.append((km, kmi))
 
 
-def remove_km():
+def unregister():
     wm = bpy.context.window_manager
     kc = wm.keyconfigs.addon
     if kc:
@@ -33,13 +24,3 @@ def remove_km():
             km.keymap_items.remove(kmi)
 
     addon_keymaps.clear()
-
-
-def register():
-    bpy.utils.register_class(CDI_Preference)
-    add_km()
-
-
-def unregister():
-    bpy.utils.unregister_class(CDI_Preference)
-    remove_km()

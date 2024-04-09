@@ -2,35 +2,8 @@ import bpy
 from bpy.props import StringProperty, EnumProperty, BoolProperty, IntProperty, CollectionProperty
 
 from .public_path import AssetDir, get_AssetDir_path, get_ScriptDir, get_ConfigDir
+from .public_data import area_type, operator_context, scripts_types
 
-area_type = {
-    'VIEW_3D': '3D View',
-    'IMAGE_EDITOR': 'Image Editor',
-    'NODE_EDITOR': 'Node Editor',
-    'TEXT_EDITOR': 'Text Editor',
-}
-
-scripts_types = [
-    'pre_script',
-    'post_script',
-    'foreach_pre_script',
-    'foreach_post_script'
-]
-
-operator_context = [
-    'INVOKE_DEFAULT',
-    # 'INVOKE_REGION_WIN',
-    # 'INVOKE_REGION_CHANNELS',
-    # 'INVOKE_REGION_PREVIEW',
-    # 'INVOKE_AREA',
-    # 'INVOKE_SCREEN',
-    'EXEC_DEFAULT',
-    # 'EXEC_REGION_WIN',
-    # 'EXEC_REGION_CHANNELS',
-    # 'EXEC_REGION_PREVIEW',
-    # 'EXEC_AREA',
-    # 'EXEC_SCREEN',
-]
 
 
 class CDI_ConfigItem(bpy.types.PropertyGroup):
@@ -385,6 +358,13 @@ def draw_layout(self, context, layout):
             # open folder
             box.operator('wm.path_open', text='Open Script Folder').filepath = str(get_ScriptDir())
 
+class CDI_Preference(bpy.types.AddonPreferences):
+    bl_idname = __package__
+
+    def draw(self, context):
+        layout = self.layout
+        draw_layout(self, context, layout)
+
 
 def register():
     bpy.utils.register_class(CDI_ConfigItem)
@@ -394,6 +374,7 @@ def register():
     bpy.utils.register_class(CDI_OT_idname_selector)
     bpy.utils.register_class(CDI_OT_configlist_edit)
     bpy.utils.register_class(CDI_OT_file_ext_editor)
+    bpy.utils.register_class(CDI_Preference)
 
     bpy.types.WindowManager.cdi_config_list = CollectionProperty(type=CDI_ConfigItem)
     bpy.types.WindowManager.cdi_config_list_index = IntProperty()
@@ -412,6 +393,7 @@ def unregister():
     bpy.utils.unregister_class(CDI_OT_idname_selector)
     bpy.utils.unregister_class(CDI_OT_configlist_edit)
     bpy.utils.unregister_class(CDI_OT_file_ext_editor)
+    bpy.utils.unregister_class(CDI_Preference)
 
     del bpy.types.WindowManager.cdi_config_show_advanced
     del bpy.types.WindowManager.cdi_config_category
