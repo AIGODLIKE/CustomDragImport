@@ -16,6 +16,10 @@ def get_AssetDir_path(subpath: AssetDir) -> Path:
     return Path(__file__).parent.joinpath('asset', subpath.value)
 
 
+def get_ConfigDir() -> Path:
+    return get_AssetDir_path(AssetDir.CONFIG)
+
+
 def get_ConfigFile(filename=ConfigFiles.DEFAULT.value) -> Path:
     return get_AssetDir_path(AssetDir.CONFIG).joinpath(filename)
 
@@ -27,11 +31,9 @@ def save_ConfigFile(filename=ConfigFiles.DEFAULT.value, data: dict = None):
         json.dump(data, fp=f)
 
 
-def get_ScriptDir():
+def get_ScriptDir() -> Path:
     return get_AssetDir_path(AssetDir.SCRIPTS)
 
 
 def get_ScriptFile(filename):
     return get_ScriptDir().joinpath(filename)
-
-

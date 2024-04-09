@@ -1,7 +1,7 @@
 import bpy
 from bpy.props import StringProperty, EnumProperty, BoolProperty, IntProperty, CollectionProperty
 
-from .public_path import AssetDir, get_AssetDir_path, get_ScriptDir
+from .public_path import AssetDir, get_AssetDir_path, get_ScriptDir, get_ConfigDir
 
 area_type = {
     'VIEW_3D': '3D View',
@@ -42,8 +42,8 @@ class CDI_ConfigItem(bpy.types.PropertyGroup):
     # custom
     pre_script: StringProperty(name='Before Import all')
     post_script: StringProperty(name='After Import all')
-    foreach_pre_script: StringProperty(name='Before Import one file')
-    foreach_post_script: StringProperty(name='After Import one file')
+    foreach_pre_script: StringProperty(name='Before Import Each File')
+    foreach_post_script: StringProperty(name='After Import Each File')
     operator_context: EnumProperty(default='EXEC_DEFAULT', name='Context',
                                    items=[(k, k.replace('_', ' ').title(), '') for k in operator_context])
     # display
@@ -124,6 +124,14 @@ class CDI_UL_ConfigList(bpy.types.UIList):
         row.prop(item, 'name', text='', emboss=False)
         row.label(text=item.bl_file_extensions)
         row.label(text=area_type.get(item.poll_area, item.poll_area))
+
+        show_script = False
+        for st in scripts_types:
+            if getattr(item, st) != '':
+                show_script = True
+                break
+
+        row.label(text='', icon='FILE_SCRIPT' if show_script else "DOT")
 
     def filter_items(self, context, data, propname):
         items = getattr(data, propname)
@@ -316,8 +324,10 @@ def draw_layout(self, context, layout):
     row = layout.split(factor=0.75)
     row.separator()
 
-    row = layout.row()
+    row = layout.row(align=True)
     row.prop(wm, 'cdi_config_category', text='')
+    row.operator('wm.path_open', text='Open', icon='FILE').filepath = str(get_ConfigDir())
+    row.operator('wm.path_open', text='', icon='FILE_SCRIPT').filepath = str(get_ScriptDir())
     row = row.row()
     # row.operator(CDI_OT_config_sl.bl_idname, text='Load').type = 'LOAD'
     row.operator(CDI_OT_config_sl.bl_idname, text='Save').type = 'SAVE'
@@ -374,6 +384,7 @@ def draw_layout(self, context, layout):
                 row.operator(CDI_OT_script_selector.bl_idname, icon='VIEWZOOM', text='').scripts_types = st
             # open folder
             box.operator('wm.path_open', text='Open Script Folder').filepath = str(get_ScriptDir())
+
 
 def register():
     bpy.utils.register_class(CDI_ConfigItem)
