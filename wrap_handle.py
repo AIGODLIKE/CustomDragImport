@@ -14,7 +14,7 @@ class DynamicImport():
     # must have
     directory: bpy.props.StringProperty(subtype='FILE_PATH', options={'SKIP_SAVE'})
     files: bpy.props.CollectionProperty(type=bpy.types.OperatorFileListElement, options={'SKIP_SAVE'})
-
+    clipboard_files: bpy.props.StringProperty(options={'SKIP_SAVE'})  # file names join with ;
     # pass in
     bl_file_extensions: str
     bl_import_operator: str
@@ -29,17 +29,21 @@ class DynamicImport():
     def execute(self, context):
         if not self.directory:
             return {'CANCELLED'}
+        if len(self.files) == 0:
+            files = self.clipboard_files.split(';')
+        else:
+            files = [file.name for file in self.files]
 
         with self._process_scripts(self.pre_script, self.post_script,
-                                   {'directory': self.directory, 'files': self.files}):
+                                   {'directory': self.directory, 'files': files}):
             select_objs = []
             select_nodes = []
 
-            for file in self.files:
-                has_ext = self._check_extension(file.name, self.bl_file_extensions)
+            for index, file in enumerate(files):
+                has_ext = self._check_extension(file, self.bl_file_extensions)
                 if not has_ext: continue
 
-                filepath = os.path.join(self.directory, file.name)
+                filepath = os.path.join(self.directory, file)
                 try:
                     cat, name = self.bl_import_operator.split('.')
                     op_callable = getattr(getattr(bpy.ops, cat), name)
@@ -47,13 +51,14 @@ class DynamicImport():
                     self.report({'WARNING'}, 'Invalid/Empty Operator: ' + self.bl_import_operator)
                     op_callable = empty_op
 
-                with self._process_scripts(self.foreach_pre_script, self.foreach_post_script, {'filepath': filepath}):
+                with self._process_scripts(self.foreach_pre_script, self.foreach_post_script,
+                                           {'filepath': filepath, 'index': index}):
                     if self.kwargs:
                         op_callable(self.operator_context, filepath=filepath, **self.kwargs)
                     else:
                         op_callable(self.operator_context, filepath=filepath)
 
-                    self.report({'INFO'}, 'Imported: ' + file.name)
+                    self.report({'INFO'}, 'Imported: ' + file)
 
                 # restore select
                 if hasattr(context, 'selected_objects'):

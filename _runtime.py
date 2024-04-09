@@ -1,6 +1,10 @@
 import json
+import bpy
+from pathlib import Path
+
 from .public_path import AssetDir, get_AssetDir_path
 from .wrap_handle import gen_import_op, gen_import_handle
+from . import clipboard
 
 G_ops = {}
 G_handles = {}
@@ -43,6 +47,51 @@ def ensure_op_handles():
     # print(G_ops, G_handles)
 
 
+class CDI_OT_popup_operator(bpy.types.Operator):
+    bl_label = "CDI Popup Operator"
+    bl_idname = "cdi.popup_operator"
+
+    def filter_files(self, files) -> list[Path]:
+        # get the most common extension
+        exts = [file.suffix for file in files]
+        ext = max(set(exts), key=exts.count)
+        return [file for file in files if file.suffix == ext]
+
+    def filter_operator(self, context, bl_file_extensions) -> list[str]:
+        split_exts = lambda exts: exts.split(';')
+        ops = []
+        for handle in G_handles.values():
+            if not handle.poll_drop(context): continue
+            if bl_file_extensions in split_exts(handle.bl_file_extensions):
+                ops.append(handle.bl_import_operator)
+        return ops
+
+    def execute(self, context):
+        wm = context.window_manager
+        with clipboard.clipboard():
+            files = clipboard.get_FILEPATHS()
+
+        files = [Path(file) for file in files]
+        files = self.filter_files(files)
+
+        if not files:
+            return {'CANCELLED'}
+
+        directory = files[0].parent
+        bl_file_extensions = files[0].suffix
+        clipboard_files = ';'.join([file.name for file in files])
+
+        def draw(_self, _context):
+            for bl_idname in self.filter_operator(context, bl_file_extensions):
+                op = _self.layout.operator(bl_idname)
+                op.directory = str(directory)
+                op.clipboard_files = clipboard_files
+
+        wm.popup_menu(draw)
+
+        return {'FINISHED'}
+
+
 def register():
     ensure_op_handles()
 
@@ -52,6 +101,8 @@ def register():
     for handle in G_handles.values():
         bpy.utils.register_class(handle)
 
+    bpy.utils.register_class(CDI_OT_popup_operator)
+
 
 def unregister():
     import bpy
@@ -59,6 +110,8 @@ def unregister():
         bpy.utils.unregister_class(op)
     for handle in G_handles.values():
         bpy.utils.unregister_class(handle)
+
+    bpy.utils.unregister_class(CDI_OT_popup_operator)
 
     G_ops.clear()
     G_handles.clear()
