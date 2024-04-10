@@ -497,6 +497,5 @@ def set_image(src_img: str) -> bool:
 
 
 if __name__ == '__main__':
-    with clipboard():
-        print(get_FILEPATHS())
+    pass
 
