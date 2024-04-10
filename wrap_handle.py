@@ -4,6 +4,7 @@ from pathlib import Path
 from contextlib import contextmanager
 
 from .public_path import get_ScriptFile
+from .modules import cdi_tool
 
 
 def empty_op(operator_context: str, filepath, kwargs=None):
@@ -89,7 +90,7 @@ class DynamicImport():
         return {'RUNNING_MODAL'}
 
     @contextmanager
-    def _process_scripts(self, pre: str | None, post: str | None, kwargs: dict | None = None):
+    def _process_scripts(self, pre: str | None, post: str | None, kwargs: dict):
         if pre is not None:
             self._exec_script(pre, kwargs)
         yield
@@ -102,8 +103,7 @@ class DynamicImport():
         with open(file, 'r', encoding='utf-8') as f:
             data = f.read()
             # pass in kwargs
-            kwargs = kwargs if kwargs else {}
-            exec(data, globals(), locals())
+            exec(data, {'cdi_tool': cdi_tool, **kwargs})
 
     def _check_extension(self, filename, ext_str: str) -> bool:
         if ';' not in ext_str:
