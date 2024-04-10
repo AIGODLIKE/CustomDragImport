@@ -1,9 +1,11 @@
 import json
 import bpy
 from pathlib import Path
+import sys
 
 from .public_path import AssetDir, get_AssetDir_path
 from .wrap_handle import gen_import_op, gen_import_handle
+
 from . import clipboard
 
 G_ops = {}
@@ -110,7 +112,8 @@ def register():
     for handle in G_handles.values():
         bpy.utils.register_class(handle)
 
-    bpy.utils.register_class(CDI_OT_popup_operator)
+    if sys.platform == 'win32':
+        bpy.utils.register_class(CDI_OT_popup_operator)
 
 
 def unregister():
@@ -120,7 +123,8 @@ def unregister():
     for handle in G_handles.values():
         bpy.utils.unregister_class(handle)
 
-    bpy.utils.unregister_class(CDI_OT_popup_operator)
+    if sys.platform == 'win32':
+        bpy.utils.unregister_class(CDI_OT_popup_operator)
 
     G_ops.clear()
     G_handles.clear()
