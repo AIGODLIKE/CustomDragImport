@@ -7,16 +7,18 @@ bl_info = {
     "support": "COMMUNITY",
 }
 
-from . import _runtime, display, keymap
+from . import _runtime, display, keymap, translations
 
 
 def register():
     _runtime.register()
     display.register()
     keymap.register()
+    translations.register()
 
 
 def unregister():
     _runtime.unregister()
     display.unregister()
     keymap.unregister()
+    translations.unregister()
