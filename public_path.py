@@ -1,4 +1,5 @@
 import json
+import os
 from pathlib import Path
 from enum import Enum
 
@@ -10,6 +11,13 @@ class AssetDir(Enum):
 
 class ConfigFiles(Enum):
     DEFAULT = 'default.json'
+
+
+class ScriptType(Enum):
+    pre_script = 'pre_script'
+    post_script = 'post_script'
+    foreach_pre_script = 'foreach_pre_script'
+    foreach_post_script = 'foreach_post_script'
 
 
 def get_AssetDir_path(subpath: AssetDir) -> Path:
@@ -35,5 +43,10 @@ def get_ScriptDir() -> Path:
     return get_AssetDir_path(AssetDir.SCRIPTS)
 
 
-def get_ScriptFile(filename):
-    return get_ScriptDir().joinpath(filename)
+def get_ScriptFile(filename) -> Path | None:
+    # walk through all files in the script directory
+    for root, dirs, files in os.walk(get_ScriptDir()):
+        for file in files:
+            if file == filename:
+                return Path(root).joinpath(file)
+    return None

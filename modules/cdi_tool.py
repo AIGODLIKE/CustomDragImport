@@ -6,9 +6,6 @@ from mathutils.bvhtree import BVHTree
 from dataclasses import dataclass
 
 
-
-
-
 class ObjectBoundingBox():
 
     def __init__(self, obj: bpy.types.Object, mode: str = 'ACCURATE', is_local: bool = False,

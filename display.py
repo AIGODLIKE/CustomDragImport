@@ -1,9 +1,9 @@
 import bpy
+import os
 from bpy.props import StringProperty, EnumProperty, BoolProperty, IntProperty, CollectionProperty
 
 from .public_path import AssetDir, get_AssetDir_path, get_ScriptDir, get_ConfigDir
 from .public_data import area_type, operator_context, scripts_types
-
 
 
 class CDI_ConfigItem(bpy.types.PropertyGroup):
@@ -13,10 +13,10 @@ class CDI_ConfigItem(bpy.types.PropertyGroup):
     poll_area: EnumProperty(default='VIEW_3D', name='Area',
                             items=[(k, v, '') for k, v in area_type.items()], )
     # custom
-    pre_script: StringProperty(name='Before Import all')
-    post_script: StringProperty(name='After Import all')
-    foreach_pre_script: StringProperty(name='Before Import Each File')
-    foreach_post_script: StringProperty(name='After Import Each File')
+    pre_script: StringProperty(name='Pre Script', description='Before Import All Files')
+    post_script: StringProperty(name='Post Script', description='After Import All Files')
+    foreach_pre_script: StringProperty(name='Foreach Pre Script', description='Before Import Each File')
+    foreach_post_script: StringProperty(name='Foreach Post Script', description='After Import Each File')
     operator_context: EnumProperty(default='EXEC_DEFAULT', name='Context',
                                    items=[(k, k.replace('_', ' ').title(), '') for k in operator_context])
     # display
@@ -181,10 +181,23 @@ class CDI_OT_script_selector(bpy.types.Operator):
     scripts_types: StringProperty()
 
     def get_script(self, context):
+        from bpy.app.translations import pgettext_iface as _p
         enum_items = CDI_OT_script_selector._enum_script
         enum_items.clear()
-        for file in get_ScriptDir().iterdir():
-            enum_items.append((file.name, file.stem, ''))
+        # for file in get_ScriptDir().iterdir():
+        #     enum_items.append((file.name, file.stem, ''))
+
+        # enum_item ( file.name, file.name - file directory, '')
+        for root, dirs, files in os.walk(get_ScriptDir()):
+            for file in files:
+                directory = root.split(os.sep)[-1]
+                if directory == 'scripts':
+                    enum_items.append((file, file, ''))
+                else:
+                    directory = directory.removesuffix('_script')
+                    directory = directory.replace('_', ' ').title()
+                    enum_items.append((file, f'{_p(directory)}: {file}', ''))
+
         return enum_items
 
     enum_script: EnumProperty(
@@ -357,6 +370,7 @@ def draw_layout(self, context, layout):
                 row.operator(CDI_OT_script_selector.bl_idname, icon='VIEWZOOM', text='').scripts_types = st
             # open folder
             box.operator('wm.path_open', text='Open Script Folder').filepath = str(get_ScriptDir())
+
 
 class CDI_Preference(bpy.types.AddonPreferences):
     bl_idname = __package__

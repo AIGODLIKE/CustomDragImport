@@ -99,7 +99,7 @@ class DynamicImport():
 
     def _exec_script(self, script: str, kwargs: dict):
         file = get_ScriptFile(script)
-        if not file.exists(): return
+        if not file or not file.exists(): return
         with open(file, 'r', encoding='utf-8') as f:
             data = f.read()
             # pass in kwargs
