@@ -1,6 +1,6 @@
 import bpy
 
-cdi_tool = globals().get('cdi_tool')
+cdi_tool = globals().get('cdi_obj_measure')
 
 if bpy.context.selected_objects:
     obj = bpy.context.selected_objects[0]

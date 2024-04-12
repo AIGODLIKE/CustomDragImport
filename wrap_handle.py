@@ -4,7 +4,7 @@ from pathlib import Path
 from contextlib import contextmanager
 
 from .public_path import get_ScriptFile
-from .modules import cdi_tool
+from .modules import cdi_tool, cdi_debug_log, cdi_obj_measure
 
 
 def empty_op(operator_context: str, filepath, kwargs=None):
@@ -105,7 +105,10 @@ class DynamicImport():
             with open(file, 'r', encoding='utf-8') as f:
                 data = f.read()
                 # pass in kwargs
-                exec(data, {'cdi_tool': cdi_tool, **kwargs})
+                exec(data, {'cdi_tool': cdi_tool,
+                            'cdi_debug_log': cdi_debug_log,
+                            'cdi_obj_measure': cdi_obj_measure,
+                            **kwargs})
 
     def _check_extension(self, filename, ext_str: str) -> bool:
         if ';' not in ext_str:
