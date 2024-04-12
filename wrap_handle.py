@@ -98,12 +98,14 @@ class DynamicImport():
             self._exec_script(post, kwargs)
 
     def _exec_script(self, script: str, kwargs: dict):
-        file = get_ScriptFile(script)
-        if not file or not file.exists(): return
-        with open(file, 'r', encoding='utf-8') as f:
-            data = f.read()
-            # pass in kwargs
-            exec(data, {'cdi_tool': cdi_tool, **kwargs})
+        scripts = script.split(';')
+        for s in scripts:
+            file = get_ScriptFile(s)
+            if not file or not file.exists(): return
+            with open(file, 'r', encoding='utf-8') as f:
+                data = f.read()
+                # pass in kwargs
+                exec(data, {'cdi_tool': cdi_tool, **kwargs})
 
     def _check_extension(self, filename, ext_str: str) -> bool:
         if ';' not in ext_str:

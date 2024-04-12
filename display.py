@@ -178,7 +178,11 @@ class CDI_OT_script_selector(bpy.types.Operator):
 
     _enum_script = []  # store
 
+    operator_type: EnumProperty(
+        items=[('ADD', 'Add', ''), ('REMOVE', 'Remove', '')], options={'SKIP_SAVE', 'HIDDEN'})
+
     scripts_types: StringProperty()
+    remove_script: StringProperty()
 
     def get_script(self, context):
         from bpy.app.translations import pgettext_iface as _p
@@ -209,13 +213,29 @@ class CDI_OT_script_selector(bpy.types.Operator):
         wm = context.window_manager
         item = wm.cdi_config_list[wm.cdi_config_list_index]
         if self.scripts_types in scripts_types:
-            setattr(item, self.scripts_types, self.enum_script)
+            # setattr(item, self.scripts_types, self.enum_script)
+
+            scripts_list = getattr(item, self.scripts_types)
+            if self.operator_type == 'REMOVE':
+                ori_list = scripts_list.split(';')
+                ori_list.remove(self.remove_script)
+                setattr(item, self.scripts_types, ';'.join(ori_list))
+            else:
+                setattr(item, self.scripts_types, scripts_list + ';' + self.enum_script)
+
+            if getattr(item, self.scripts_types).startswith(';'):
+                setattr(item, self.scripts_types, getattr(item, self.scripts_types)[1:])
+
+        context.area.tag_redraw()
 
         return {"FINISHED"}
 
     def invoke(self, context, event):
-        context.window_manager.invoke_search_popup(self)
-        return {'FINISHED'}
+        if self.operator_type == 'ADD':
+            context.window_manager.invoke_search_popup(self)
+            return {'FINISHED'}
+        else:
+            return self.execute(context)
 
 
 class CDI_OT_idname_selector(bpy.types.Operator):
@@ -366,10 +386,19 @@ def draw_layout(self, context, layout):
         if show:
             for st in scripts_types:
                 row = box.row()
-                row.prop(item, st)
-                row.operator(CDI_OT_script_selector.bl_idname, icon='VIEWZOOM', text='').scripts_types = st
-            # open folder
-            box.operator('wm.path_open', text='Open Script Folder').filepath = str(get_ScriptDir())
+                row.label(text=st.replace('_', ' ').title())
+
+                if script_list := getattr(item, st).split(';'):
+                    script_list = [s for s in script_list if s != '']
+                    for script in script_list:
+                        op = row.operator(CDI_OT_script_selector.bl_idname, icon='X', text=script)
+                        op.scripts_types = st
+                        op.operator_type = 'REMOVE'
+                        op.remove_script = script
+
+                op = row.operator(CDI_OT_script_selector.bl_idname, icon='ADD', text='')
+                op.scripts_types = st
+                op.operator_type = "ADD"
 
 
 class CDI_Preference(bpy.types.AddonPreferences):

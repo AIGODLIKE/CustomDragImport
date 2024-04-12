@@ -10,4 +10,4 @@ selected_nodes = globals().get('selected_nodes')
 directory = globals().get('directory')
 files = globals().get('files')
 
-print(filepath, index, directory)
+print("cdi_tool", filepath, index, selected_objects, selected_nodes, directory, files)
