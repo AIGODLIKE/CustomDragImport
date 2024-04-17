@@ -1,7 +1,6 @@
 import bpy
 from pathlib import Path
 
-cdi_tool = globals().get('cdi_tool')
 filepath = globals().get('filepath')
 
 # get file name

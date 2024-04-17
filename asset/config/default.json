@@ -4,7 +4,7 @@
         "bl_file_extensions": ".obj",
         "poll_area": "VIEW_3D",
         "operator_context": "EXEC_DEFAULT",
-        "foreach_post_script": "add_collection.py;print_args.py"
+        "foreach_post_script": "addCollection.py;printArgs.py;drop2floor.py"
     },
     "Batch STL Import": {
         "bl_import_operator": "wm.stl_import",
@@ -16,7 +16,7 @@
         "bl_import_operator": "preferences.addon_install",
         "bl_file_extensions": ".zip;.py",
         "poll_area": "VIEW_3D",
-        "foreach_post_script": "example_printFilepath.py",
+        "foreach_post_script": "printArgs.py",
         "operator_context": "EXEC_DEFAULT"
     },
     "Open Blend File": {
@@ -34,7 +34,7 @@
     "Empty": {
         "bl_import_operator": "",
         "bl_file_extensions": ".blend",
-        "foreach_post_script": "example_printFilepath.py",
+        "foreach_post_script": "printArgs.py",
         "poll_area": "VIEW_3D",
         "operator_context": "EXEC_DEFAULT"
     }
