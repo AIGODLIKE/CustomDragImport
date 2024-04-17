@@ -35,7 +35,7 @@ class DynamicImport():
             files = [file.name for file in self.files]
 
         with self._process_scripts(self.pre_script, self.post_script,
-                                   {'directory': self.directory, 'files': files}):
+                                   {'directory': self.directory, 'files': files,'event':self.event}):
             select_objs = []
             select_nodes = []
 
@@ -52,7 +52,7 @@ class DynamicImport():
                     op_callable = empty_op
 
                 with self._process_scripts(self.foreach_pre_script, self.foreach_post_script,
-                                           {'filepath': filepath, 'index': index,
+                                           {'filepath': filepath, 'index': index,'event':self.event,
                                             'selected_objects': select_objs,
                                             'selected_nodes': select_nodes
                                             }):
@@ -83,6 +83,7 @@ class DynamicImport():
         return {'FINISHED'}
 
     def invoke(self, context, event):
+        self.event = event
         if self.directory:
             return self.execute(context)
         context.window_manager.fileselect_add(self)
