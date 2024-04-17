@@ -4,7 +4,14 @@
         "bl_file_extensions": ".obj",
         "poll_area": "VIEW_3D",
         "operator_context": "EXEC_DEFAULT",
-        "foreach_post_script": "addCollection.py;printArgs.py;drop2floor.py"
+        "foreach_post_script": "addCollection.py;printArgs.py;drop2floor.py;alignAxisX.py"
+    },
+    "Batch Import Image Nodes": {
+        "bl_file_extensions": ".png",
+        "bl_import_operator": "",
+        "poll_area": "NODE_EDITOR",
+        "operator_context": "EXEC_DEFAULT",
+        "post_script": "printArgs.py;importFileAsNodes.py"
     },
     "Batch STL Import": {
         "bl_import_operator": "wm.stl_import",

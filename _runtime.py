@@ -43,6 +43,8 @@ def ensure_op_handles():
             bl_file_extensions=values['bl_file_extensions'],
             poll_area=values['poll_area']
         )
+        handle.poll_area = values['poll_area']
+
         G_ops.update({label: op})
         G_handles.update({label: handle})
 
@@ -63,7 +65,7 @@ class CDI_OT_popup_operator(bpy.types.Operator):
         split_exts = lambda exts: exts.split(';')
         ops = []
         for handle in G_handles.values():
-            if not handle.poll_drop(context): continue
+            if context.area.type != handle.poll_area: continue
             if bl_file_extensions in split_exts(handle.bl_file_extensions):
                 ops.append(handle.bl_import_operator)
         return ops
@@ -88,6 +90,8 @@ class CDI_OT_popup_operator(bpy.types.Operator):
         clipboard_files = ';'.join([file.name for file in files])
 
         def draw(_self, _context):
+            _self.layout.operator_context = 'INVOKE_DEFAULT'
+            _self.layout.label(text=f"Import {bl_file_extensions} files")
             for bl_idname in self.filter_operator(context, bl_file_extensions):
                 op = _self.layout.operator(bl_idname)
                 op.directory = str(directory)

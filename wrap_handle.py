@@ -35,7 +35,7 @@ class DynamicImport():
             files = [file.name for file in self.files]
 
         with self._process_scripts(self.pre_script, self.post_script,
-                                   {'directory': self.directory, 'files': files,'event':self.event}):
+                                   {'directory': self.directory, 'files': files, 'event': self.event}):
             select_objs = []
             select_nodes = []
 
@@ -52,7 +52,8 @@ class DynamicImport():
                     op_callable = empty_op
 
                 with self._process_scripts(self.foreach_pre_script, self.foreach_post_script,
-                                           {'filepath': filepath, 'index': index,'event':self.event,
+                                           {'filepath': filepath, 'index': index, 'event': self.event,
+                                            'directory': self.directory, 'files': files,
                                             'selected_objects': select_objs,
                                             'selected_nodes': select_nodes
                                             }):
@@ -78,7 +79,10 @@ class DynamicImport():
                     for node in node_list:
                         node.select = True
                 if select_nodes:
-                    tree.nodes.active = select_nodes[0][0]
+                    try:
+                        tree.nodes.active = select_nodes[0][0]
+                    except Exception as e:
+                        print(e)
 
         return {'FINISHED'}
 
@@ -118,14 +122,14 @@ class DynamicImport():
 
 
 class DynamicPollDrop():
-    poll_region: str = 'WINDOW'
-    poll_area: str = 'VIEW_3D'
+    poll_area:str
 
     @classmethod
     def poll_drop(self, context):
-        return (context.region and context.region.type == self.poll_region
-                and context.area and context.area.type == self.poll_area)
+        return (context.area and context.area.type == self._poll_area)
 
+    def _poll_area(self):
+        return self.poll_area
 
 def gen_import_op(bl_idname, bl_label, bl_import_operator: str, bl_file_extensions,
                   operator_context: str = 'INVOKE_DEFAULT',
@@ -157,7 +161,7 @@ def gen_import_op(bl_idname, bl_label, bl_import_operator: str, bl_file_extensio
 
 
 def gen_import_handle(bl_idname: str, bl_label: str, bl_import_operator: str, bl_file_extensions: str,
-                      poll_region: str = 'WINDOW', poll_area='VIEW_3D'):
+                      poll_area:str):
     handle = type(bl_idname,
                   (bpy.types.FileHandler, DynamicPollDrop),
                   {
@@ -166,7 +170,6 @@ def gen_import_handle(bl_idname: str, bl_label: str, bl_import_operator: str, bl
                       "bl_import_operator": bl_import_operator,
                       "bl_file_extensions": bl_file_extensions,
                       # custom
-                      "poll_region": poll_region,
                       "poll_area": poll_area,
                       "poll_drop": DynamicPollDrop.poll_drop
                   }
