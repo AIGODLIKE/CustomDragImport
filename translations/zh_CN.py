@@ -16,4 +16,6 @@ data = {
     'Select Operator': '选择操作项',
     'Open Script Folder': '打开脚本文件夹',
     # preset script
+    'Config Folder': '配置文件夹',
+    'Script Folder': '脚本文件夹',
 }

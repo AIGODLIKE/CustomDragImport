@@ -332,11 +332,14 @@ def draw_layout(self, context, layout):
 
     row = layout.row(align=True)
     row.prop(wm, 'cdi_config_category', text='')
-    row.operator('wm.path_open', text='Open', icon='FILE').filepath = str(get_ConfigDir())
-    row.operator('wm.path_open', text='', icon='FILE_SCRIPT').filepath = str(get_ScriptDir())
-    row = row.row()
+    row.operator('wm.path_open', text='Config Folder', icon='FILE').filepath = str(get_ConfigDir())
+    row.operator('wm.path_open', text='Script Folder', icon='FILE_SCRIPT').filepath = str(get_ScriptDir())
+
+    row.separator()
+    row = row.row(align = True)
     # row.operator(CDI_OT_config_sl.bl_idname, text='Load').type = 'LOAD'
-    row.operator(CDI_OT_config_sl.bl_idname, text='Save').type = 'SAVE'
+    row.operator(CDI_OT_config_sl.bl_idname, text='Load', icon='FILE_REFRESH').type = 'LOAD'
+    row.operator(CDI_OT_config_sl.bl_idname, text='Save', icon='IMPORT').type = 'SAVE'
 
     row = layout.row()
     col = row.column(align=True)
