@@ -3,7 +3,11 @@ from mathutils import Vector, Matrix
 import numpy as np
 from mathutils.bvhtree import BVHTree
 
-from dataclasses import dataclass
+# 以下物体检测bbox
+C_OBJECT_TYPE_HAS_BBOX = {'MESH', 'CURVE', 'FONT', 'LATTICE'}
+# 创建bbox的面顶点顺序
+faces = [(0, 1, 2, 3), (4, 7, 6, 5), (0, 4, 5, 1), (1, 5, 6, 2), (2, 6, 7, 3), (4, 0, 3, 7)]
+
 
 
 class ObjectBoundingBox():
@@ -288,3 +292,87 @@ class ObjectBoundingBox():
             return pt
         else:
             return self.mx @ pt
+
+
+class ObjectsBoundingBox():
+    def __init__(self, obj_list: list[ObjectBoundingBox]):
+        self.obj_list = obj_list
+        self._bbox_pts = self.get_bbox_pts()
+        self.bvh_tree_update()
+
+    def _calc_bbox_pts(self):
+        """计算所有物体的包围盒的8个点"""
+        obj = self.obj_list[0]
+        obj.is_local = False
+        bbox_pts = obj.get_bbox_pts(is_local=False)
+
+        max_x = max(bbox_pts, key=lambda v: v.x).x
+        max_y = max(bbox_pts, key=lambda v: v.y).y
+        max_z = max(bbox_pts, key=lambda v: v.z).z
+
+        min_x = min(bbox_pts, key=lambda v: v.x).x
+        min_y = min(bbox_pts, key=lambda v: v.y).y
+        min_z = min(bbox_pts, key=lambda v: v.z).z
+
+        for obj in self.obj_list:
+            obj.is_local = False
+            bbox_pts = obj.get_bbox_pts(is_local=False)
+
+            max_x = max(max_x, max(bbox_pts, key=lambda v: v.x).x)
+            max_y = max(max_y, max(bbox_pts, key=lambda v: v.y).y)
+            max_z = max(max_z, max(bbox_pts, key=lambda v: v.z).z)
+
+            min_x = min(min_x, min(bbox_pts, key=lambda v: v.x).x)
+            min_y = min(min_y, min(bbox_pts, key=lambda v: v.y).y)
+            min_z = min(min_z, min(bbox_pts, key=lambda v: v.z).z)
+
+        self.min_x = min_x
+        self.min_y = min_y
+        self.min_z = min_z
+        self.max_x = max_x
+        self.max_y = max_y
+        self.max_z = max_z
+
+        x = self.min_x, self.max_x
+        y = self.min_y, self.max_y
+        z = self.min_z, self.max_z
+
+        bbox_pts = []
+
+        for i in range(2):
+            for j in range(2):
+                for k in range(2):
+                    bbox_pts.append(Vector((x[i], y[j], z[k])))
+
+        return bbox_pts
+
+    def get_bbox_pts(self):
+        return self._calc_bbox_pts()
+
+    def get_bbox_center(self):
+        total = Vector((0, 0, 0))
+        for v in self.get_bbox_pts():
+            total = total + v
+        return total / 8
+
+    def get_bottom_center(self):
+        pt = self.get_bbox_center()
+        pt.z -= (self.max_z - self.min_z) / 2
+        return pt
+
+    def get_top_center(self):
+        pt = self.get_bbox_center()
+        pt.z += (self.max_z - self.min_z) / 2
+        return pt
+
+    @property
+    def size(self):
+        return Vector((self.max_x - self.min_x, self.max_y - self.min_y, self.max_z - self.min_z))
+
+    # BVH tree
+    @property
+    def bvh_tree(self) -> BVHTree:
+        return self._bvh_tree
+
+    def bvh_tree_update(self):
+        self._bvh_tree = BVHTree.FromPolygons(self.get_bbox_pts(), faces)

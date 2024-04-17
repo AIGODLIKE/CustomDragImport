@@ -1,10 +1,15 @@
 import bpy
+from cdi_tool.boundingBox import ObjectBoundingBox, ObjectsBoundingBox, C_OBJECT_TYPE_HAS_BBOX
+from cdi_tool.debugLog import DebugLog
 
-cdi_tool = globals().get('cdi_tool')
+logger = DebugLog()
 
+selected_objs = [obj for obj in bpy.context.selected_objects if obj.type in C_OBJECT_TYPE_HAS_BBOX]
+bboxs = [ObjectBoundingBox(obj, is_local=False) for obj in selected_objs]
 
-if bpy.context.selected_objects:
-    obj = bpy.context.selected_objects[0]
+if len(bboxs) != 0:
+    objs_A = ObjectsBoundingBox(bboxs)
+    bottom = objs_A.get_bottom_center()
 
-    bound_box = cdi_tool.ObjectBoundingBox(obj)
-    print(bound_box.size)
+    for obj in selected_objs:
+        obj.location.z -= bottom[2]
