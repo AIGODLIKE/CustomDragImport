@@ -13,4 +13,10 @@ directory = globals().get('directory')
 files = globals().get('files')
 
 logger = DebugLog()
-logger.debug(event, filepath, index, selected_objects, selected_nodes, directory, files)
+logger.debug(f'event:{event}\n'
+             f'filepath:{filepath}\n'
+             f'index:{index}\n'
+             f'selected_objects:{selected_objects}\n'
+             f'selected_nodes:{selected_nodes}\n'
+             f'directory:{directory}\n'
+             f'files:{files}\n')

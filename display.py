@@ -336,7 +336,7 @@ def draw_layout(self, context, layout):
     row.operator('wm.path_open', text='Script Folder', icon='FILE_SCRIPT').filepath = str(get_ScriptDir())
 
     row.separator()
-    row = row.row(align = True)
+    row = row.row(align=True)
     # row.operator(CDI_OT_config_sl.bl_idname, text='Load').type = 'LOAD'
     row.operator(CDI_OT_config_sl.bl_idname, text='Load', icon='FILE_REFRESH').type = 'LOAD'
     row.operator(CDI_OT_config_sl.bl_idname, text='Save', icon='IMPORT').type = 'SAVE'
@@ -407,9 +407,18 @@ def draw_layout(self, context, layout):
 class CDI_Preference(bpy.types.AddonPreferences):
     bl_idname = __package__
 
+    ui_type: EnumProperty(items=[
+        ('CONFIG', 'Config', ''),
+        ('SETTINGS', 'Settings', ''),
+    ])
+
     def draw(self, context):
         layout = self.layout
-        draw_layout(self, context, layout)
+        row = layout.row(align=True)
+        row.prop(self, 'ui_type', expand=True)
+
+        if self.ui_type == 'CONFIG':
+            draw_layout(self, context, layout)
 
 
 def register():
