@@ -4,7 +4,8 @@
         "bl_file_extensions": ".obj",
         "poll_area": "VIEW_3D",
         "operator_context": "EXEC_DEFAULT",
-        "foreach_post_script": "addCollection.py;printArgs.py;drop2floor.py;alignAxisX.py"
+        "foreach_post_script": "addCollection.py;printArgs.py",
+        "post_script": "dropOnSurface.py"
     },
     "Import Image Nodes": {
         "bl_file_extensions": ".png;.jpg",
