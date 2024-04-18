@@ -123,10 +123,15 @@ def register():
 def unregister():
     import bpy
     for op in G_ops.values():
-        bpy.utils.unregister_class(op)
+        try:
+            bpy.utils.unregister_class(op)
+        except RuntimeError:
+            pass
     for handle in G_handles.values():
-        bpy.utils.unregister_class(handle)
-
+        try:
+            bpy.utils.unregister_class(handle)
+        except RuntimeError:
+            pass
     if sys.platform == 'win32':
         bpy.utils.unregister_class(CDI_OT_popup_operator)
 

@@ -30,7 +30,11 @@ def load_config_wm():
         with open(file, 'r', encoding='utf-8') as f:
             data = json.load(f)
             cat_datas.update({file.stem: data})
-
+    if not cat_datas:
+        # create a new json file
+        with open(get_AssetDir_path(AssetDir.CONFIG) / 'default.json', 'w', encoding='utf-8') as f:
+            cat_datas['default'] = {'New Importer': {'bl_import_operator': '', 'bl_file_extensions': '.txt',
+                                                     'poll_area': 'VIEW_3D', 'operator_context': 'EXEC_DEFAULT'}}
     # clear all item
     bpy.context.window_manager.cdi_config_list.clear()
 
