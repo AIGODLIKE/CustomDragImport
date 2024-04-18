@@ -127,6 +127,7 @@ class CDI_UL_ConfigList(bpy.types.UIList):
 class CDI_OT_configlist_edit(bpy.types.Operator):
     bl_idname = 'cdi.configlist_edit'
     bl_label = 'Edit'
+    bl_description = '%s Item'
 
     operator_type: EnumProperty(
         items=[
@@ -134,8 +135,13 @@ class CDI_OT_configlist_edit(bpy.types.Operator):
             ('REMOVE', 'Remove', ''),
             ('MOVE_UP', 'Move Up', ''),
             ('MOVE_DOWN', 'Move Down', ''),
+            ('COPY', 'Copy', ''),
         ]
     )
+
+    @classmethod
+    def description(cls, context, event):
+        return cls.bl_description % cls.operator_type.replace('_', ' ').title()
 
     def execute(self, context):
         wm = context.window_manager
@@ -161,6 +167,23 @@ class CDI_OT_configlist_edit(bpy.types.Operator):
             neighbor = index + (-1 if self.operator_type == 'MOVE_UP' else 1)
             my_list.move(neighbor, index)
             self.move_index(context)
+
+        elif self.operator_type == 'COPY':
+            src_item = wm.cdi_config_list[wm.cdi_config_list_index]
+
+            new_item = wm.cdi_config_list.add()
+
+            for key in src_item.__annotations__.keys():
+                value = getattr(src_item, key)
+                if key == 'name': value = f'{value}_copy'
+                setattr(new_item, key, value)
+
+            old_index = wm.cdi_config_list_index
+            new_index = len(wm.cdi_config_list) - 1
+            wm.cdi_config_list_index = len(wm.cdi_config_list) - 1
+
+            for i in range(old_index, new_index - 1):
+                bpy.ops.cdi.configlist_edit(operator_type='MOVE_UP')
 
         return {'FINISHED'}
 
@@ -345,8 +368,11 @@ def draw_layout(self, context, layout):
     col = row.column(align=True)
     col.operator(CDI_OT_configlist_edit.bl_idname, icon='ADD', text='').operator_type = 'ADD'
     col.operator(CDI_OT_configlist_edit.bl_idname, icon='REMOVE', text='').operator_type = 'REMOVE'
+    col.separator()
     col.operator(CDI_OT_configlist_edit.bl_idname, icon='TRIA_UP', text='').operator_type = 'MOVE_UP'
     col.operator(CDI_OT_configlist_edit.bl_idname, icon='TRIA_DOWN', text='').operator_type = 'MOVE_DOWN'
+    col.separator()
+    col.operator(CDI_OT_configlist_edit.bl_idname, icon='COPYDOWN', text='').operator_type = 'COPY'
 
     row.template_list(
         "CDI_UL_ConfigList", "Config List",
@@ -380,7 +406,7 @@ def draw_layout(self, context, layout):
 
         box.prop(item, 'poll_area')
         box.prop(item, 'operator_context')
-        #######################
+        ################
         box = box.box()
         box.use_property_split = False
         show = wm.cdi_config_show_advanced
@@ -416,14 +442,14 @@ class CDI_Preference(bpy.types.AddonPreferences):
     ui_type: EnumProperty(items=[
         ('CONFIG', 'Config', ''),
         ('SETTINGS', 'Settings', ''),
-    ])
+    ], default='CONFIG')
 
     clipboard_keymap: EnumProperty(name='Clipboard import keymap',
-        items=[
-            ('0', 'Ctrl Shift V', ''),
-            ('1', 'Ctrl Alt LeftMouse Drag', '')
-        ], update=refresh_keymap, default='1'
-    )
+                                   items=[
+                                       ('0', 'Ctrl Shift V', ''),
+                                       ('1', 'Ctrl Alt LeftMouse Drag', '')
+                                   ], update=refresh_keymap, default='1'
+                                   )
 
     def draw(self, context):
         layout = self.layout
