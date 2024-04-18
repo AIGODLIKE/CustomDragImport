@@ -121,16 +121,6 @@ class DynamicImport():
             return False
 
 
-class DynamicPollDrop():
-    poll_area:str
-
-    @classmethod
-    def poll_drop(self, context):
-        return (context.area and context.area.type == self._poll_area)
-
-    def _poll_area(self):
-        return self.poll_area
-
 def gen_import_op(bl_idname, bl_label, bl_import_operator: str, bl_file_extensions,
                   operator_context: str = 'INVOKE_DEFAULT',
                   kwargs: dict = None,
@@ -160,18 +150,44 @@ def gen_import_op(bl_idname, bl_label, bl_import_operator: str, bl_file_extensio
     return op
 
 
+class DropPoll:
+
+    @classmethod
+    def poll_ALL(cls, context):
+        return True
+
+    @classmethod
+    def poll_VIEW_3D(cls, context):
+        return context.area and context.area.type == 'VIEW_3D'
+
+    @classmethod
+    def poll_NODE_EDITOR(cls, context):
+        return context.area and context.area.type == 'NODE_EDITOR'
+
+    @classmethod
+    def poll_IMAGE_EDITOR(cls, context):
+        return context.area and context.area.type == 'IMAGE_EDITOR'
+
+    @classmethod
+    def poll_TEXT_EDITOR(cls, context):
+        return context.area and context.area.type == 'TEXT_EDITOR'
+
+
 def gen_import_handle(bl_idname: str, bl_label: str, bl_import_operator: str, bl_file_extensions: str,
-                      poll_area:str):
+                      poll_area: str):
+    ars = {
+        "bl_idname": bl_idname,
+        "bl_label": bl_label,
+        "bl_import_operator": bl_import_operator,
+        "bl_file_extensions": bl_file_extensions,
+        # custom
+        "poll_area": poll_area,
+    }
+
     handle = type(bl_idname,
-                  (bpy.types.FileHandler, DynamicPollDrop),
-                  {
-                      "bl_idname": bl_idname,
-                      "bl_label": bl_label,
-                      "bl_import_operator": bl_import_operator,
-                      "bl_file_extensions": bl_file_extensions,
-                      # custom
-                      "poll_area": poll_area,
-                      "poll_drop": DynamicPollDrop.poll_drop
+                  (bpy.types.FileHandler,), {
+                      **ars,
+                      "poll_drop": getattr(DropPoll, f'poll_{poll_area}', DropPoll.poll_ALL)
                   }
                   )
 
