@@ -6,12 +6,19 @@
         "operator_context": "EXEC_DEFAULT",
         "foreach_post_script": "addCollection.py;printArgs.py;drop2floor.py;alignAxisX.py"
     },
-    "Batch Import Image Nodes": {
-        "bl_file_extensions": ".png",
+    "Import Image Nodes": {
+        "bl_file_extensions": ".png;.jpg",
         "bl_import_operator": "",
         "poll_area": "NODE_EDITOR",
         "operator_context": "EXEC_DEFAULT",
         "post_script": "printArgs.py;importFileAsNodes.py"
+    },
+    "Import PBR Textures": {
+        "poll_area": "NODE_EDITOR",
+        "bl_file_extensions": ".png;.jpg",
+        "bl_import_operator": "",
+        "operator_context": "EXEC_DEFAULT",
+        "post_script": "setupPBRTextures.py"
     },
     "Batch STL Import": {
         "bl_import_operator": "wm.stl_import",

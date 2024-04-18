@@ -358,7 +358,7 @@ def draw_layout(self, context, layout):
     if item:
         box = layout.box()
         # box.use_property_split = True
-
+        box.prop(item, 'name')
         row = box.row(align=True)
         row.prop(item, 'bl_import_operator')
         row.operator('CDI_OT_idname_selector', icon='VIEWZOOM', text='')
@@ -404,6 +404,12 @@ def draw_layout(self, context, layout):
                 op.operator_type = "ADD"
 
 
+def refresh_keymap(self, context):
+    from . import keymap
+    keymap.unregister()
+    keymap.register()
+
+
 class CDI_Preference(bpy.types.AddonPreferences):
     bl_idname = __package__
 
@@ -412,6 +418,13 @@ class CDI_Preference(bpy.types.AddonPreferences):
         ('SETTINGS', 'Settings', ''),
     ])
 
+    clipboard_keymap: EnumProperty(name='Clipboard import keymap',
+        items=[
+            ('0', 'Ctrl Shift V', ''),
+            ('1', 'Ctrl Alt LeftMouse Drag', '')
+        ], update=refresh_keymap, default='1'
+    )
+
     def draw(self, context):
         layout = self.layout
         row = layout.row(align=True)
@@ -419,6 +432,8 @@ class CDI_Preference(bpy.types.AddonPreferences):
 
         if self.ui_type == 'CONFIG':
             draw_layout(self, context, layout)
+        else:
+            layout.prop(self, 'clipboard_keymap')
 
 
 def register():

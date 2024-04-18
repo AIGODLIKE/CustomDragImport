@@ -18,4 +18,7 @@ data = {
     # preset script
     'Config Folder': '配置文件夹',
     'Script Folder': '脚本文件夹',
+    'Clipboard is empty!': '剪贴板为空！',
+    'Clipboard import keymap': '剪贴板导入快捷键',
+    'Ctrl Alt LeftMouse Drag': 'Ctrl Alt 左键拖动',
 }

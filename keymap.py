@@ -17,7 +17,6 @@ def draw_keymap(self, context, layout):
     old_km_name = ""
     get_kmi_l = []
 
-
     for km_add, kmi_add in addon_keymaps:
         for km_con in kc.keymaps:
             if km_add.name == km_con.name:
@@ -39,14 +38,21 @@ def draw_keymap(self, context, layout):
 
         old_km_name = km.name
 
+
 def register():
     wm = bpy.context.window_manager
 
+    pref = bpy.context.preferences.addons[__package__].preferences
+
     for k, v in area_type.items():
         km = wm.keyconfigs.addon.keymaps.new(name=v, space_type=k)
-        # click drag
-        kmi = km.keymap_items.new('cdi.popup_operator', 'LEFTMOUSE', 'CLICK_DRAG', ctrl=True, alt=True,
-                                  shift=False)
+        if pref.clipboard_keymap == '0':
+            kmi = km.keymap_items.new('cdi.popup_operator', 'V', 'PRESS', ctrl=True, alt=False,
+                                      shift=True)
+        else:
+            # click drag
+            kmi = km.keymap_items.new('cdi.popup_operator', 'LEFTMOUSE', 'CLICK_DRAG', ctrl=True, alt=True,
+                                      shift=False)
         addon_keymaps.append((km, kmi))
 
 
