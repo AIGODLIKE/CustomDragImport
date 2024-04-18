@@ -18,7 +18,7 @@ def create_tmp_parent(bottom_loc: Vector, selected_objs: list[bpy.types.Object],
     rot_obj = bpy.context.object
     empty.rotation_euler = rot_obj.rotation_euler
 
-    def create_tmp_parent(obj):
+    def create_parent_const(obj):
         con = obj.constraints.new('CHILD_OF')
         con.name = 'TMP_PARENT'
         con.use_rotation_x = True
@@ -32,10 +32,10 @@ def create_tmp_parent(bottom_loc: Vector, selected_objs: list[bpy.types.Object],
             obj.select_set(False)
             continue
         # loop over the constraints in each object
-        create_tmp_parent(obj)
+        create_parent_const(obj)
     # if obj is not mesh
     if rot_obj not in selected_objs:
-        create_tmp_parent(rot_obj)
+        create_parent_const(rot_obj)
         rot_obj.select_set(True)
 
     bpy.context.collection.objects.link(empty)
