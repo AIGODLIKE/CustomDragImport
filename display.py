@@ -23,7 +23,11 @@ class CDI_ConfigItem(bpy.types.PropertyGroup):
     category: StringProperty(default='default')
 
 
-def load_config_wm():
+def load_config_wm() -> dict[str, dict[str, dict[str, str]]]:
+    """load config from json file to window manager
+    :return: category data
+    {'filename': {'label': {'key': 'value'}}}
+    """
     import json
     cat_datas = {}  # category only use in display
     for file in get_AssetDir_path(AssetDir.CONFIG).iterdir():
@@ -49,7 +53,7 @@ def load_config_wm():
     return cat_datas
 
 
-def save_config_wm():
+def save_config_wm() -> None:
     import json
     cat_datas = {}
     for item in bpy.context.window_manager.cdi_config_list:

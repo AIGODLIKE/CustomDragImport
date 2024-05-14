@@ -2,6 +2,7 @@ import json
 import os
 from pathlib import Path
 from enum import Enum
+from typing import Union
 
 
 class AssetDir(Enum):
@@ -43,7 +44,7 @@ def get_ScriptDir() -> Path:
     return get_AssetDir_path(AssetDir.SCRIPTS)
 
 
-def get_ScriptFile(filename) -> Path | None:
+def get_ScriptFile(filename) -> Union[Path, None]:
     # walk through all files in the script directory
     for root, dirs, files in os.walk(get_ScriptDir()):
         for file in files:

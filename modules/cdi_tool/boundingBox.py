@@ -9,7 +9,6 @@ C_OBJECT_TYPE_HAS_BBOX = {'MESH', 'CURVE', 'FONT', 'LATTICE'}
 faces = [(0, 1, 2, 3), (4, 7, 6, 5), (0, 4, 5, 1), (1, 5, 6, 2), (2, 6, 7, 3), (4, 0, 3, 7)]
 
 
-
 class ObjectBoundingBox():
 
     def __init__(self, obj: bpy.types.Object, mode: str = 'ACCURATE', is_local: bool = False,
@@ -168,7 +167,7 @@ class ObjectBoundingBox():
         self.min_y = float(pts[min_xyz_id[1], 1])
         self.min_z = float(pts[min_xyz_id[2], 2])
 
-    def _calc_bbox_pts(self):
+    def _calc_bbox_pts(self) -> list[Vector]:
         """
         pts order:
         (x_min, y_min, z_min), (x_min, y_min, z_max), (x_min, y_max, z_min), (x_min, y_max, z_max),
@@ -187,7 +186,7 @@ class ObjectBoundingBox():
 
         return pts
 
-    def axis_face_pts(self, axis, invert):
+    def axis_face_pts(self, axis, invert) -> list[Vector]:
         """
         获取轴向的面点
         :param axis: 'X', 'Y', 'Z'
@@ -213,7 +212,7 @@ class ObjectBoundingBox():
         return pts
 
     @property
-    def size(self):
+    def size(self) -> tuple[float, float, float]:
         return self.max_x - self.min_x, self.max_y - self.min_y, self.max_z - self.min_z
 
     # Bounding box Max and min
@@ -226,7 +225,7 @@ class ObjectBoundingBox():
         _axis = '_' + axis.lower()
         return getattr(self, 'max' + _axis)
 
-    def get_bbox_pts(self, is_local: bool = False):
+    def get_bbox_pts(self, is_local: bool = False) -> list[Vector]:
         """
         获取物体的包围盒的8个点
         :param mode: BboxMode
@@ -300,7 +299,7 @@ class ObjectsBoundingBox():
         self._bbox_pts = self.get_bbox_pts()
         self.bvh_tree_update()
 
-    def _calc_bbox_pts(self):
+    def _calc_bbox_pts(self) -> list[Vector]:
         """计算所有物体的包围盒的8个点"""
         obj = self.obj_list[0]
         obj.is_local = False
@@ -346,27 +345,27 @@ class ObjectsBoundingBox():
 
         return bbox_pts
 
-    def get_bbox_pts(self):
+    def get_bbox_pts(self) -> list[Vector]:
         return self._calc_bbox_pts()
 
-    def get_bbox_center(self):
+    def get_bbox_center(self) -> Vector:
         total = Vector((0, 0, 0))
         for v in self.get_bbox_pts():
             total = total + v
         return total / 8
 
-    def get_bottom_center(self):
+    def get_bottom_center(self) -> Vector:
         pt = self.get_bbox_center()
         pt.z -= (self.max_z - self.min_z) / 2
         return pt
 
-    def get_top_center(self):
+    def get_top_center(self) -> Vector:
         pt = self.get_bbox_center()
         pt.z += (self.max_z - self.min_z) / 2
         return pt
 
     @property
-    def size(self):
+    def size(self) -> Vector:
         return Vector((self.max_x - self.min_x, self.max_y - self.min_y, self.max_z - self.min_z))
 
     # BVH tree
