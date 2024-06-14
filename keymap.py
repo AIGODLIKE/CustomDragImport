@@ -40,6 +40,9 @@ def draw_keymap(self, context, layout):
 
 
 def register():
+    import sys
+    if sys.platform != 'win32': return
+
     wm = bpy.context.window_manager
 
     pref = bpy.context.preferences.addons[__package__].preferences
@@ -57,6 +60,9 @@ def register():
 
 
 def unregister():
+    import sys
+    if sys.platform != 'win32': return
+
     wm = bpy.context.window_manager
     kc = wm.keyconfigs.addon
     if kc:

@@ -16,6 +16,10 @@ Config will be save to `CustomDragImport\asset\config\default.json`, **make sure
 
 ![](./statics/images/3.png)
 
+## Windows Feature
+
+You are allow to use `Ctrl Alt Left-Drag` / `Ctrl Shift V` to import file from clipboard
+
 ## Config Struct
 
 Config Struct
