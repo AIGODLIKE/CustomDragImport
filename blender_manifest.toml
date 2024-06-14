@@ -1,7 +1,7 @@
 name = "Custom Drag Import"
 id = "CustomDragImport"
 maintainer = "AIGODLIKE社区, Atticus"
-version = "0.3.0"
+version = "0.3.1"
 tagline = "Custom your drag import handle in blender"
 blender_version_min = "4.1.0"
 type = "add-on"
