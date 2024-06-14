@@ -1,0 +1,11 @@
+name = "Custom Drag Import"
+id = "CustomDragImport"
+maintainer = "AIGODLIKE社区, Atticus"
+version = "0.3.0"
+tagline = "Custom your drag import handle in blender"
+blender_version_min = "4.1.0"
+type = "add-on"
+schema_version = "1.0.0"
+tags = ["Import-Export"]
+license = ["GPL-3.0"]
+website = "https://github.com/atticus-lv/CustomDragImport"
