@@ -2,7 +2,7 @@ bl_info = {
     "name": "Custom Drag Import",
     "author": "AIGODLIKE社区, Atticus",
     "blender": (4, 2, 0),
-    "version": (0, 3, 1),
+    "version": (0, 3, 2),
     "category": "Import-Export",
     "support": "COMMUNITY",
 }
