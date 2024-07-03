@@ -6,6 +6,7 @@ tagline = "Custom your drag import handle in blender"
 blender_version_min = "4.2.0"
 type = "add-on"
 schema_version = "1.0.0"
+permissions = ["files","clipboard"]
 tags = ["Import-Export"]
 license = ["SPDX:GPL-3.0-or-later"]
 website = "https://github.com/atticus-lv/CustomDragImport"
