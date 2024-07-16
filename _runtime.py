@@ -6,7 +6,6 @@ import sys
 from .public_path import AssetDir, get_AssetDir_path
 from .wrap_handle import gen_import_op, gen_import_handle
 
-from . import clipboard
 
 G_ops = {}
 G_handles = {}
@@ -71,6 +70,8 @@ class CDI_OT_popup_operator(bpy.types.Operator):
         return ops
 
     def execute(self, context):
+        from . import clipboard
+
         wm = context.window_manager
         with clipboard.clipboard():
             try:
